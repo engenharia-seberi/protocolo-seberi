@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protocolo de Projetos – Seberi</title>
+<link rel="icon" href="assets/logo-seberi.png">
+<style>
+  :root {
+    --fundo: #f3f5f4;
+    --papel: #fff;
+    --tinta: #1c2b22;
+    --suave: #5f6f66;
+    --linha: #d9e0dc;
+    --verde: #1f6b3b;
+    --verde-vivo: #22a455;
+    --verde-claro: #e9f5ee;
+    --alerta: #92400e; --alerta-fundo: #fef3c7;
+    --erro: #b42318;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--tinta); font: 15px/1.45 "Segoe UI", system-ui, -apple-system, Arial, sans-serif; }
+  [hidden] { display: none !important; }
+
+  /* barra do app */
+  .barra { background: var(--papel); border-bottom: 3px solid var(--verde); }
+  .barra .dentro { max-width: 1320px; margin: 0 auto; padding: 8px 16px; display: flex; align-items: center; gap: 16px; }
+  .barra img { height: 52px; width: auto; display: block; }
+  .barra h1 { margin: 0; font-size: 18px; font-weight: 650; color: var(--verde); line-height: 1.2; }
+  .barra h1 small { display: block; font-size: 12.5px; font-weight: 400; color: var(--suave); }
+  .barra .status { margin-left: auto; text-align: right; font-size: 12px; color: var(--suave); }
+  .barra .status b { display: block; font-size: 14px; color: var(--tinta); }
+  @media (max-width: 720px) { .barra .status { display: none; } .barra img { height: 40px; } }
+
+  /* grade principal */
+  main { max-width: 1320px; margin: 0 auto; padding: 20px 16px 48px; display: grid; grid-template-columns: minmax(320px, 460px) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .coluna { display: grid; gap: 20px; min-width: 0; }
+  @media (max-width: 860px) { main { grid-template-columns: minmax(0, 1fr); } }
+
+  /* cartões */
+  .cartao { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 20px; box-shadow: 0 1px 2px rgba(20, 50, 30, .05); }
+  .cartao > h2 { margin: 0 0 14px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+  .cartao > h2 .n { width: 24px; height: 24px; border-radius: 50%; background: var(--verde); color: #fff; font-size: 13px; display: grid; place-items: center; flex: none; }
+  .secao + .secao { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--linha); }
+  .secao > h3 { margin: 0 0 10px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--verde); }
+
+  /* campos */
+  .campo { margin-bottom: 12px; }
+  .campo:last-child { margin-bottom: 0; }
+  .campo label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .campo input, .campo select, .campo textarea { width: 100%; height: 40px; padding: 0 12px; font: inherit; color: inherit; background: #fff; border: 1px solid #b9c4bd; border-radius: 8px; }
+  .campo input:focus, .campo select:focus, .campo textarea:focus { outline: 2px solid var(--verde-vivo); outline-offset: 1px; border-color: var(--verde); }
+  .campo select:disabled { background: #f0f3f1; color: var(--suave); }
+  .campo textarea { height: auto; min-height: 64px; padding: 8px 12px; resize: vertical; line-height: 1.4; }
+  .opcional { font-weight: 400; color: var(--suave); }
+  .campo.invalido input, .campo.invalido select, .campo.invalido textarea { border-color: var(--erro); background: #fff6f5; }
+  .campo .dica { font-size: 12px; color: var(--suave); margin-top: 4px; }
+  .linha { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+  .linha .campo { margin-bottom: 0; }
+  .dupla { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .dupla .campo { margin-bottom: 0; }
+  .subrot { font-size: 12px; font-weight: 700; color: var(--suave); margin: 4px 0 6px; }
+  .endereco { display: grid; grid-template-columns: 1fr 96px; gap: 12px; margin-bottom: 12px; }
+  .endereco .campo { margin-bottom: 0; }
+  .tripla { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .tripla .campo { margin-bottom: 0; }
+  @media (max-width: 480px) { .dupla, .tripla { grid-template-columns: 1fr; } }
+  .afixo { position: relative; }
+  .afixo input { text-align: right; font-variant-numeric: tabular-nums; }
+  .afixo.sufixo input { padding-right: 38px; }
+  .afixo span { position: absolute; top: 50%; transform: translateY(-50%); color: var(--suave); font-size: 13px; pointer-events: none; right: 12px; }
+
+  /* opções (rádio / caixa) */
+  .opcoes { display: grid; gap: 6px; }
+  .opcoes label { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; border: 1px solid var(--linha); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 400; margin: 0; }
+  .opcoes label:hover { border-color: #b9c4bd; }
+  .opcoes input, .campo .opcoes input, .marcar input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--verde); flex: none; }
+  .opcoes label:has(input:checked) { border-color: var(--verde); background: var(--verde-claro); }
+  .opcoes .cod { margin-left: auto; font-size: 11.5px; font-weight: 600; color: var(--verde); white-space: nowrap; padding-top: 1px; }
+  .opcoes.inline { grid-template-columns: repeat(3, 1fr); }
+  .opcoes.inline label { justify-content: center; }
+  .campo.invalido .opcoes label { border-color: var(--erro); }
+  .marcar { display: flex; align-items: center; gap: 8px; font-size: 14px; margin: 4px 0 12px; cursor: pointer; }
+  .marcar input { accent-color: var(--verde); width: 16px; height: 16px; }
+  .nota-tipo { margin: 12px 0 0; font-size: 12.5px; color: var(--suave); }
+
+  /* critérios de padrão */
+  .criterios { margin-top: 8px; font-size: 13px; }
+  .criterios summary { cursor: pointer; color: var(--verde); font-weight: 600; }
+  .criterios .tab { overflow-x: auto; margin-top: 8px; }
+  .criterios table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 12px; }
+  .criterios th, .criterios td { border: 1px solid var(--linha); padding: 5px 7px; vertical-align: top; text-align: left; }
+  .criterios th { background: var(--verde-claro); }
+
+  /* botões */
+  .acoes { display: flex; gap: 10px; margin-top: 16px; }
+  .acoes button { height: 44px; padding: 0 18px; font: inherit; font-weight: 600; border-radius: 8px; cursor: pointer; border: 1px solid var(--verde); }
+  .acoes .principal { flex: 1; background: var(--verde); color: #fff; }
+  .acoes .principal:hover { background: #185530; }
+  .acoes .secundario { background: #fff; color: var(--verde); }
+  .aviso { display: none; margin-top: 10px; font-size: 13px; color: var(--erro); }
+  .aviso.ativo { display: block; }
+
+  /* pré-visualização */
+  .previa { min-width: 0; }
+  .previa summary { cursor: pointer; font-weight: 600; color: var(--verde); padding: 4px 0; }
+  .previa .rolagem { margin-top: 12px; padding: 16px; background: #dfe5e1; border-radius: 10px; display: grid; gap: 16px; justify-content: center; }
+  .previa .pagina { margin: 0 auto; box-shadow: 0 2px 10px rgba(0, 0, 0, .18); }
+  .previa .vazio { padding: 40px 16px; text-align: center; color: var(--suave); }
+
+  /* documento – modelo moderno */
+  .pagina { width: 210mm; height: 297mm; background: #fff; overflow: hidden; }
+  .pagina table { width: 100%; border-collapse: collapse; }
+  .pagina.moderno { padding: 0; display: flex; flex-direction: column; font-family: "Segoe UI", Arial, Helvetica, sans-serif; font-size: 10.5pt; line-height: 1.4; color: #1c2b22; }
+  .moderno .faixa, .moderno .caixa.x { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .moderno .faixa { height: 5mm; flex: none; background: linear-gradient(90deg, #1f6b3b 0 72%, #22a455 72% 100%); }
+  .moderno .miolo { flex: 1; padding: 9mm 18mm 0; display: flex; flex-direction: column; min-height: 0; }
+  .moderno .topo { display: flex; align-items: center; justify-content: space-between; gap: 8mm; padding-bottom: 5mm; border-bottom: 1.5pt solid #1f6b3b; }
+  .moderno .topo img { width: 52mm; height: auto; }
+  .moderno .titulo { text-align: right; }
+  .moderno .rot { font-size: 8pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #1f6b3b; }
+  .moderno .titulo .nome { font-size: 19pt; font-weight: 700; line-height: 1.1; letter-spacing: .02em; text-transform: uppercase; margin-top: 1mm; }
+  .moderno .titulo .sub { font-size: 11pt; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #1f6b3b; margin-top: 1mm; }
+  .moderno .titulo .cod { font-size: 7.5pt; color: #5f6f66; margin-top: 1.5mm; letter-spacing: .06em; }
+  .moderno h4 { margin: 6mm 0 2.5mm; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase; color: #1f6b3b; }
+  .moderno .grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5mm; }
+  .moderno .grade.g4 { grid-template-columns: repeat(4, 1fr); }
+  .moderno .grade.g5 { grid-template-columns: repeat(5, 1fr); }
+  .moderno .item { border: .75pt solid #cfd8d2; border-radius: 2mm; padding: 2mm 3mm; min-width: 0; }
+  .moderno .item.largo { grid-column: 1 / -1; }
+  .moderno .item.duplo { grid-column: span 2; }
+  .moderno .item small { display: block; font-size: 6.5pt; letter-spacing: .08em; text-transform: uppercase; color: #5f6f66; }
+  .moderno .item strong { display: block; font-size: 11pt; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-height: 5mm; }
+  .moderno .item > span { display: block; font-size: 8pt; color: #5f6f66; }
+  .moderno .texto { margin-top: 6mm; }
+  .moderno .texto p { margin: 0 0 3.5mm; text-align: justify; hyphens: auto; }
+  .moderno .saudacao { margin: 7mm 0 5mm; font-weight: 700; letter-spacing: .04em; }
+  .moderno .leis { margin: 0 0 3.5mm; padding-left: 6mm; }
+  .moderno .leis li { margin-bottom: .8mm; }
+  .moderno .branco { display: inline-block; min-width: 45mm; border-bottom: .75pt solid #1c2b22; height: 1em; vertical-align: baseline; }
+  .moderno .item .branco { display: block; min-width: 0; height: 5mm; border-bottom-style: dotted; }
+  .moderno .marcas { display: grid; gap: 1.6mm; margin: 0 0 4mm 2mm; }
+  .moderno .marcas.duas { grid-template-columns: 1fr 1fr; }
+  .moderno .marca { display: flex; gap: 2.5mm; align-items: flex-start; }
+  .moderno .caixa { flex: none; width: 3.6mm; height: 3.6mm; border: .9pt solid #1c2b22; border-radius: .6mm; margin-top: .7mm; position: relative; }
+  .moderno .caixa.x { background: #1f6b3b; border-color: #1f6b3b; }
+  .moderno .caixa.x::after { content: ""; position: absolute; left: 1.05mm; top: .25mm; width: .9mm; height: 1.9mm; border: solid #fff; border-width: 0 .5mm .5mm 0; transform: rotate(45deg); }
+  .moderno .marca.x { font-weight: 600; }
+  .moderno .dados { margin: 5mm 0 0; display: grid; gap: 1.5mm; }
+  .moderno .dados div b { display: inline-block; min-width: 34mm; }
+  .moderno .empurra { flex: 1; min-height: 4mm; }
+  .moderno .local-data { text-align: right; margin: 6mm 0 0; }
+  .moderno .assinaturas { display: grid; grid-template-columns: 1fr 1fr; gap: 12mm 14mm; margin: 16mm 0 10mm; }
+  .moderno .assinaturas.tres { grid-template-columns: repeat(3, 1fr); gap: 8mm; margin: 12mm 0 8mm; }
+  .moderno .rts th { text-align: left; font-size: 6.5pt; letter-spacing: .08em; text-transform: uppercase; color: #5f6f66; font-weight: 600; padding: 0 2mm 1.2mm; border-bottom: .75pt solid #1c2b22; }
+  .moderno .rts td { padding: 2mm; border-bottom: .75pt solid #cfd8d2; font-size: 9.5pt; vertical-align: top; overflow-wrap: anywhere; }
+  .moderno .rts td:first-child { font-size: 7pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #1f6b3b; white-space: nowrap; }
+  .moderno .rts td b { display: block; font-size: 10pt; }
+  .moderno .assinaturas.tres .ass { font-size: 8.5pt; }
+  .moderno .assinaturas.tres .ass b { font-size: 8.5pt; }
+  .moderno .ass { text-align: center; font-size: 9pt; line-height: 1.3; border-top: .75pt solid #1c2b22; padding-top: 1.5mm; }
+  .moderno .ass b { display: block; font-size: 9.5pt; text-transform: uppercase; }
+  .moderno .ass small { display: block; font-size: 6.5pt; letter-spacing: .1em; text-transform: uppercase; color: #1f6b3b; font-weight: 700; margin-bottom: .5mm; }
+  .moderno .ass.centro { grid-column: 1 / -1; width: 50%; justify-self: center; }
+  .moderno.compacto h4 { margin: 4.5mm 0 2mm; }
+  .moderno.compacto .assinaturas { margin: 12mm 0 8mm; }
+  .moderno .rodape { margin: 0 18mm; padding: 3mm 0 9mm; border-top: .75pt solid #cfd8d2; display: flex; justify-content: space-between; gap: 8mm; font-size: 7.5pt; line-height: 1.4; color: #5f6f66; flex: none; }
+  .moderno .rodape div:last-child { text-align: right; }
+  /* checklist */
+  .moderno .chk h4 { margin-top: 4.5mm; }
+  .moderno .chk .marca { font-size: 10pt; }
+  .moderno .chk ul.sub { margin: .5mm 0 .8mm 9mm; padding-left: 3mm; font-size: 9pt; color: #33443a; }
+  .moderno .chk ul.sub li { margin: 0; }
+  .moderno .chk .obs-chk { font-size: 8pt; color: #5f6f66; margin: 1mm 0 0 6mm; }
+  .moderno .chk ul.info { margin: 0; padding-left: 5mm; font-size: 9pt; }
+  .moderno .chk ul.info li { margin-bottom: .6mm; }
+  .moderno .chk .marcas { gap: 1mm; margin-bottom: 1mm; }
+  .moderno .chk.compacto { font-size: 9.5pt; line-height: 1.3; }
+  .moderno .chk.compacto h4 { margin: 3mm 0 1.5mm; }
+  .moderno .chk.compacto .marca { font-size: 9.5pt; }
+  .moderno .chk.compacto ul.sub, .moderno .chk.compacto ul.info { font-size: 8.5pt; }
+
+  @media print {
+    @page { size: A4 portrait; margin: 0; }
+    body { background: #fff; }
+    .barra, .coluna, .previa summary { display: none !important; }
+    main { display: block; padding: 0; max-width: none; }
+    .previa { border: 0; padding: 0; box-shadow: none; border-radius: 0; }
+    .previa .rolagem { display: block !important; overflow: visible; margin: 0; padding: 0; background: none; }
+    .previa .pagina { box-shadow: none; margin: 0; zoom: 1 !important; height: 296mm; break-after: page; page-break-after: always; }
+    .previa .pagina:last-child { break-after: auto; page-break-after: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="barra">
+  <div class="dentro">
+    <img src="assets/logo-seberi.png" alt="Prefeitura Municipal de Seberi">
+    <h1>Protocolo de Projetos<small>Documentos padrão · Departamento de Engenharia</small></h1>
+    <div class="status"><b id="stTipo">Escolha o tipo de solicitação</b><span id="stDocs">Nenhum documento selecionado</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="coluna">
+
+    <!-- 1. Solicitação -->
+    <section class="cartao">
+      <h2><span class="n">1</span> Solicitação</h2>
+      <div class="campo" id="cTipo">
+        <label for="tipo">Tipo de solicitação</label>
+        <select id="tipo"></select>
+      </div>
+      <div class="campo" id="cOutro" hidden>
+        <label for="outroDesc">Descreva a solicitação</label>
+        <input id="outroDesc" maxlength="120">
+      </div>
+      <div class="campo">
+        <label>Documentos a emitir</label>
+        <div class="opcoes" id="listaDocs"></div>
+        <div class="dica" id="dicaDocs"></div>
+      </div>
+      <div class="campo" id="cEscopo" hidden>
+        <label for="escopo">Termo de compromisso abrange</label>
+        <select id="escopo">
+          <option value="pe">Projeto e execução (TC-1)</option>
+          <option value="p">Apenas projeto (TC-2)</option>
+          <option value="e">Apenas execução (TC-3)</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- 2. Dados -->
+    <section class="cartao">
+      <h2><span class="n">2</span> Dados do processo</h2>
+
+      <div class="secao">
+        <h3>Proprietário / requerente</h3>
+        <div class="campo" id="cPropNome"><label for="propNome">Nome ou razão social</label><input id="propNome" maxlength="90"></div>
+        <div class="dupla">
+          <div class="campo" id="cPropDoc"><label for="propDoc">CPF/CNPJ</label><input id="propDoc" inputmode="numeric" data-mascara="doc"></div>
+          <div class="campo"><label for="propFone">Telefone <span class="opcional">(opcional)</span></label><input id="propFone" inputmode="tel" data-mascara="fone"></div>
+        </div>
+        <div class="subrot">Endereço</div>
+        <div class="endereco">
+          <div class="campo" id="cPropRua"><label for="propRua">Logradouro</label><input id="propRua" maxlength="80" placeholder="Rua, avenida, linha…"></div>
+          <div class="campo" id="cPropNum"><label for="propNum">Nº</label><input id="propNum" maxlength="10" placeholder="s/n"></div>
+        </div>
+        <div class="dupla">
+          <div class="campo"><label for="propComp">Complemento <span class="opcional">(opc.)</span></label><input id="propComp" maxlength="40" placeholder="Apto, sala…"></div>
+          <div class="campo" id="cPropBairro"><label for="propBairro">Bairro</label><input id="propBairro" maxlength="50" placeholder="Bairro ou localidade"></div>
+        </div>
+        <div class="campo" id="cPropCidade"><label for="propCidade">Município/UF</label><input id="propCidade" maxlength="50" placeholder="Seberi/RS" value="Seberi/RS"></div>
+      </div>
+
+      <div class="secao" id="sRtProj">
+        <h3 id="tRtProj">Responsável técnico pelo projeto</h3>
+        <div class="campo" id="cRtpNome"><label for="rtpNome">Nome</label><input id="rtpNome" maxlength="90"></div>
+        <div class="dupla">
+          <div class="campo" id="cRtpReg"><label for="rtpReg">CREA/CAU</label><input id="rtpReg" maxlength="30"></div>
+          <div class="campo" id="cRtpArt"><label for="rtpArt">ART/RRT nº</label><input id="rtpArt" maxlength="40"></div>
+        </div>
+        <div class="campo"><label for="rtpFone">Telefone <span class="opcional">(opcional)</span></label><input id="rtpFone" inputmode="tel" data-mascara="fone"></div>
+        <div class="subrot">Endereço <span class="opcional">(opcional)</span></div>
+        <div class="endereco">
+          <div class="campo" id="cRtpRua"><label for="rtpRua">Logradouro</label><input id="rtpRua" maxlength="80" placeholder="Rua, avenida, linha…"></div>
+          <div class="campo" id="cRtpNum"><label for="rtpNum">Nº</label><input id="rtpNum" maxlength="10" placeholder="s/n"></div>
+        </div>
+        <div class="dupla">
+          <div class="campo"><label for="rtpComp">Complemento <span class="opcional">(opc.)</span></label><input id="rtpComp" maxlength="40" placeholder="Apto, sala…"></div>
+          <div class="campo" id="cRtpBairro"><label for="rtpBairro">Bairro</label><input id="rtpBairro" maxlength="50" placeholder="Bairro ou localidade"></div>
+        </div>
+        <div class="campo" id="cRtpCidade"><label for="rtpCidade">Município/UF</label><input id="rtpCidade" maxlength="50" placeholder="Seberi/RS" value=""></div>
+        <label class="marcar" id="lMesmo"><input type="checkbox" id="mesmoRt" checked> É também o responsável pela execução da obra</label>
+      </div>
+
+      <div class="secao" id="sRtExec" hidden>
+        <h3>Responsável técnico pela execução</h3>
+        <div class="campo" id="cRteNome"><label for="rteNome">Nome</label><input id="rteNome" maxlength="90"></div>
+        <div class="dupla">
+          <div class="campo" id="cRteReg"><label for="rteReg">CREA/CAU</label><input id="rteReg" maxlength="30"></div>
+          <div class="campo" id="cRteArt"><label for="rteArt">ART/RRT nº</label><input id="rteArt" maxlength="40"></div>
+        </div>
+        <div class="campo"><label for="rteFone">Telefone <span class="opcional">(opcional)</span></label><input id="rteFone" inputmode="tel" data-mascara="fone"></div>
+        <div class="subrot">Endereço <span class="opcional">(opcional)</span></div>
+        <div class="endereco">
+          <div class="campo" id="cRteRua"><label for="rteRua">Logradouro</label><input id="rteRua" maxlength="80" placeholder="Rua, avenida, linha…"></div>
+          <div class="campo" id="cRteNum"><label for="rteNum">Nº</label><input id="rteNum" maxlength="10" placeholder="s/n"></div>
+        </div>
+        <div class="dupla">
+          <div class="campo"><label for="rteComp">Complemento <span class="opcional">(opc.)</span></label><input id="rteComp" maxlength="40" placeholder="Apto, sala…"></div>
+          <div class="campo" id="cRteBairro"><label for="rteBairro">Bairro</label><input id="rteBairro" maxlength="50" placeholder="Bairro ou localidade"></div>
+        </div>
+        <div class="campo" id="cRteCidade"><label for="rteCidade">Município/UF</label><input id="rteCidade" maxlength="50" placeholder="Seberi/RS" value=""></div>
+      </div>
+
+      <div class="secao">
+        <h3>Obra / imóvel</h3>
+        <div class="subrot">Endereço da obra <span class="opcional">(Seberi/RS)</span></div>
+        <div class="endereco">
+          <div class="campo" id="cObraRua"><label for="obraRua">Logradouro</label><input id="obraRua" maxlength="80" placeholder="Rua, avenida, linha…"></div>
+          <div class="campo" id="cObraNum"><label for="obraNum">Nº</label><input id="obraNum" maxlength="10" placeholder="s/n"></div>
+        </div>
+        <div class="dupla">
+          <div class="campo"><label for="obraComp">Complemento <span class="opcional">(opc.)</span></label><input id="obraComp" maxlength="40" placeholder="Apto, sala…"></div>
+          <div class="campo" id="cObraBairro"><label for="obraBairro">Bairro</label><input id="obraBairro" maxlength="50" placeholder="Bairro ou localidade"></div>
+        </div>
+        <div class="dupla">
+          <div class="campo" id="cObraMat"><label for="obraMat">Matrícula do lote</label><input id="obraMat" maxlength="30"></div>
+          <div class="campo" id="cAlvara" hidden><label for="alvara">Alvará de construção nº</label><input id="alvara" maxlength="30"></div>
+        </div>
+        <div class="dupla" id="gLote" hidden>
+          <div class="campo"><label for="quadra">Quadra <span class="opcional">(opc.)</span></label><input id="quadra" maxlength="15"></div>
+          <div class="campo"><label for="lote">Lote <span class="opcional">(opc.)</span></label><input id="lote" maxlength="15"></div>
+        </div>
+      </div>
+
+      <div class="secao" id="sD1" hidden>
+        <h3>Dados para aprovação (D-1)</h3>
+        <div class="campo" id="cUso">
+          <label>Uso da edificação</label>
+          <div class="opcoes inline">
+            <label><input type="radio" name="uso" value="RESIDENCIAL"> Residencial</label>
+            <label><input type="radio" name="uso" value="COMERCIAL"> Comercial</label>
+            <label><input type="radio" name="uso" value="INDUSTRIAL"> Industrial</label>
+          </div>
+        </div>
+        <div class="dupla">
+          <div class="campo" id="cAreaTerreno"><label for="areaTerreno">Área do terreno</label><div class="afixo sufixo"><input id="areaTerreno" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+          <div class="campo"><label for="areaConstr">Área construída <span class="opcional">(projeção)</span></label><div class="afixo sufixo"><input id="areaConstr" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+        </div>
+        <div class="tripla">
+          <div class="campo"><label for="taxaOcup">Taxa de ocupação</label><div class="afixo sufixo"><input id="taxaOcup" inputmode="numeric" data-mascara="num" data-digitos="5"><span>%</span></div></div>
+          <div class="campo"><label for="indAprov">Índice de aproveitamento</label><div class="afixo"><input id="indAprov" inputmode="numeric" data-mascara="num" data-digitos="4"></div></div>
+          <div class="campo"><label for="taxaPerm">Taxa de permeabilidade</label><div class="afixo sufixo"><input id="taxaPerm" inputmode="numeric" data-mascara="num" data-digitos="5"><span>%</span></div></div>
+        </div>
+        <div class="dupla">
+          <div class="campo" id="cAreaTotal"><label for="areaTotal">Área total construída</label><div class="afixo sufixo"><input id="areaTotal" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+          <div class="campo"><label for="areaEquiv">Área equivalente <span class="opcional">(opc.)</span></label><div class="afixo sufixo"><input id="areaEquiv" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+        </div>
+        <div class="dupla">
+          <div class="campo" id="cTipoProj"><label for="tipoProj">Tipo de projeto (NBR 12721)</label><select id="tipoProj"></select></div>
+          <div class="campo" id="cPadrao"><label for="padrao">Padrão de acabamento</label><select id="padrao"><option value=""></option><option>BAIXO</option><option>NORMAL</option><option>ALTO</option></select></div>
+        </div>
+        <details class="criterios">
+          <summary>Critérios de enquadramento do padrão construtivo</summary>
+          <div class="tab"><table id="tabCriterios"></table></div>
+        </details>
+      </div>
+
+      <div class="secao" id="sDec" hidden>
+        <h3>Tratamento de efluentes (DEC-1)</h3>
+        <div class="campo" id="cSistema">
+          <label>Sistema existente</label>
+          <div class="opcoes">
+            <label><input type="radio" name="sistema" value="1"> Fossa, filtro e sumidouro</label>
+            <label><input type="radio" name="sistema" value="2"> Fossa, filtro, clorador e ligação na rede pública*</label>
+          </div>
+          <div class="dica">*Mediante autorização do departamento ambiental do município.</div>
+        </div>
+      </div>
+
+      <div class="secao">
+        <div class="campo" id="cData" style="max-width: 220px"><label for="dataDoc">Data dos documentos</label><input type="date" id="dataDoc"></div>
+      </div>
+
+      <div class="acoes">
+        <button type="button" class="secundario" id="btnNovo">Novo protocolo</button>
+        <button type="button" class="principal" id="btnPdf">Gerar PDF</button>
+      </div>
+      <div class="aviso" id="aviso"></div>
+    </section>
+  </div>
+
+  <details class="cartao previa" id="previa">
+    <summary>Pré-visualizar documentos</summary>
+    <div class="rolagem" id="rolagem"></div>
+  </details>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- Tabelas fixas (extraídas dos modelos R2025.01) ----------
+  var REVISAO = 'R2025.01';
+
+  var TIPOS = [
+    { id: 'aprovacao', nome: 'Aprovação de Projeto (Construção e/ou Ampliação)', docs: ['req', 'd1', 'tc'], check: 'obras' },
+    { id: 'alteracao', nome: 'Alteração de Projeto Aprovado ou As Built', docs: ['req', 'd1', 'tc'], check: 'obras' },
+    { id: 'regularizacao', nome: 'Regularização e Habite-se', docs: ['req', 'd1', 'tc4', 'dec1'], check: 'regularizacao' },
+    { id: 'habitese', nome: 'Habite-se', docs: ['req', 'tc5'], check: 'habitese' },
+    { id: 'parcelamento', nome: 'Parcelamento de Solo (Exclusive Loteamento)', docs: ['req'], check: 'parcelamento' },
+    { id: 'loteamento', nome: 'Parcelamento de Solo (Loteamento)', docs: ['req'], check: 'loteamento' },
+    { id: 'reforma', nome: 'Reforma', docs: ['req', 'tc'], check: null },
+    { id: 'outro', nome: 'Outro', docs: ['req'], check: null }
+  ];
+
+  var DOCS = {
+    chk: { cod: 'Checklist', nome: 'Relação de documentos para protocolo' },
+    req: { cod: 'REQ-1', nome: 'Requerimento Padrão' },
+    d1: { cod: 'D-1', nome: 'Dados para Aprovação de Projeto' },
+    tc: { cod: 'TC-1/2/3', nome: 'Termo de Compromisso – Projeto e/ou Execução' },
+    tc4: { cod: 'TC-4', nome: 'Termo de Compromisso – Regularização' },
+    tc5: { cod: 'TC-5', nome: 'Termo de Compromisso – Conclusão de Obra' },
+    dec1: { cod: 'DEC-1', nome: 'Declaração – Sistema de Tratamento de Efluentes' }
+  };
+  var ORDEM = ['chk', 'req', 'd1', 'tc', 'tc4', 'tc5', 'dec1'];
+
+  var TIPOS_NBR = ['R1 (RESIDÊNCIA UNIFAMILIAR)', 'PP (PRÉDIO POPULAR)', 'R8 (RESIDÊNCIA MULTIFAMILIAR)', 'R16 (RESIDÊNCIA MULTIFAMILIAR)',
+    'PIS (PROJETO DE INTERESSE SOCIAL)', 'RPQ1 (RESIDÊNCIA POPULAR)', 'CAL8 (COMERCIAL ANDAR LIVRES)', 'CSL8 (COMERCIAL SALAS E LOJAS)',
+    'CSL16 (COMERCIAL SALAS E LOJAS)', 'GI (GALPÃO INDUSTRIAL)'];
+
+  var CRITERIOS = [
+    ['Área construída total (por unidade habitacional)', 'Inferior a 80 m²', 'Entre 80 m² e 150 m²', 'Acima de 150 m²'],
+    ['Composição dos cômodos', '1-2 dormitórios, 1 banheiro, sala e cozinha simples', '2-3 dormitórios, 2 banheiros, suíte, sala e cozinha, lavanderia e garagem', '3+ dormitórios, 2+ suítes, lavabo, escritório, sala e cozinha, lavanderia, garagem e área gourmet'],
+    ['Revestimento interno de paredes (banheiros e cozinha)', 'Pintura simples ou reboco', 'Azulejo até altura padrão (1,5 m a 1,8 m)', 'Azulejo até o teto, com peças decorativas ou diferenciadas'],
+    ['Revestimento de pisos', 'Cimento queimado ou cerâmica simples (PEI 1 ou 2)', 'Cerâmica esmaltada comum (PEI 3 ou 4)', 'Porcelanato, cerâmica de alto padrão ou piso vinílico/lâmina de madeira'],
+    ['Esquadrias (portas e janelas)', 'Ferro simples ou madeira comum', 'Alumínio branco ou madeira com acabamento', 'Alumínio anodizado/pintado, madeira de lei ou PVC'],
+    ['Forros e tetos', 'Sem forro ou laje aparente', 'Forro de gesso simples ou laje com acabamento em pintura PVA', 'Forro de gesso decorado ou rebaixado com sancas ou iluminação embutida'],
+    ['Fachada e acabamento externo', 'Reboco simples e pintura ou sem pintura', 'Textura ou pintura acrílica com alguns detalhes', 'Revestimento com cerâmica, pedras, pastilhas ou pintura decorativa'],
+    ['Cobertura', 'Telha fibrocimento ou cerâmica comum, estrutura simples', 'Telha cerâmica com estrutura de madeira tratada', 'Telha tipo portuguesa, termoacústica ou telhado embutido com calhas ocultas'],
+    ['Portões e fechamentos externos', 'Grade simples ou muro com acabamento básico', 'Muro rebocado com portão metálico padrão', 'Muro decorado, portão automático ou em alumínio trabalhado']
+  ];
+
+  var LEIS = [
+    'Código Penal: Artigos 184, 250, 254, 256, 299, 317, 333;',
+    'Código Civil: Artigos 186, 187, 927 e 618;',
+    'Leis Federais nº 5.194/66, 6.496/77 e 12.378/10;',
+    'Lei Municipal nº 671/76; 672/76 e 3.620/2010;',
+    'Código de Defesa do Consumidor.'
+  ];
+
+  var TXT = {
+    autor: 'Na condição de Autor do Projeto <b>DECLARO</b>, para todos os fins, que tenho pleno conhecimento de que o presente projeto relativo à construção, ampliação, reforma e/ou restauro da edificação está sendo aprovado <b>APENAS</b> em relação à legislação de zoneamento, uso e ocupação do solo e aos parâmetros urbanísticos relevantes, estabelecidos na legislação vigente. <b>DECLARO</b> também, que o mesmo atende a todas as exigências das legislações municipais, estaduais, federais e normas técnicas brasileiras, e <b>ASSUMO</b> toda a responsabilidade pela elaboração do projeto, inclusive quanto à segurança, quanto às normas relativas ao direito de vizinhança, o que inclui os afastamentos das divisas, assim como as demais responsabilidades decorrentes do não cumprimento das legislações vigentes.',
+    execucao: 'Na condição de Responsável Técnico pela execução da obra <b>DECLARO</b>, para todos os fins, que tenho pleno conhecimento de que a presente obra relativa à construção, ampliação, reforma e/ou restauro da edificação será executada de acordo com o projeto aprovado. <b>DECLARO</b> também, que o mesmo atende a todas as exigências das legislações municipais, estaduais, federais e normas técnicas brasileiras, e <b>ASSUMO</b> toda a responsabilidade pela execução da obra contratada, inclusive quanto à segurança, quanto às normas relativas ao direito de vizinhança, o que inclui os afastamentos das divisas, assim como as demais responsabilidades decorrentes do não cumprimento das legislações vigentes, tendo a ciência que a construção executada em desacordo com o projeto aprovado ensejará no indeferimento do pedido da respectiva carta de Habite-se.',
+    cientesObra: '<b>DECLARAMOS</b> estar cientes de que as responsabilidades poderão ser cumuladas na esfera civil, penal e administrativa, decorrentes de eventuais prejuízos a terceiros relacionados a execução de obras no referido imóvel, e ainda estar cientes de todas as sanções previstas na legislação federal, estadual e municipal, entre outras as constantes nos seguintes artigos:',
+    cientes: '<b>DECLARAMOS</b> estar cientes de que as responsabilidades poderão ser cumuladas na esfera civil, penal e administrativa, decorrentes de eventuais prejuízos a terceiros, e ainda estar cientes de todas as sanções previstas na legislação federal, estadual e municipal, entre outras as constantes nos seguintes artigos:',
+    regularizacao: 'Na condição de Proprietário e Responsável Técnico, <b>DECLARAMOS</b> para todos os fins, que temos pleno conhecimento de que o presente projeto relativo à regularização da edificação está sendo aprovado <b>APENAS</b> em relação à legislação de zoneamento, uso e ocupação do solo e aos parâmetros urbanísticos relevantes estabelecidos na legislação. <b>DECLARAMOS</b> total responsabilidade pela veracidade das informações ora prestadas e que o projeto confere com o executado no local; também que o mesmo atende a todas as exigências das legislações municipais, estaduais, federais e normas técnicas brasileiras, e <b>ASSUMIMOS</b> toda a responsabilidade pela elaboração do projeto, inclusive quanto à segurança, quanto às normas relativas ao direito de vizinhança, o que inclui os afastamentos das divisas, assim como as demais responsabilidades decorrentes do não cumprimento das legislações vigentes.',
+    conclusao2: '<b>DECLARAMOS</b> ter cumprido as obrigações estabelecidas e que a mesma atende a todas as exigências das legislações municipais, estaduais, federais e normas técnicas brasileiras, e <b>ASSUMO</b> toda a responsabilidade pela execução da obra, inclusive quanto à segurança, quanto às normas relativas ao direito de vizinhança o que inclui os afastamentos das divisas, assim como as demais responsabilidades decorrentes do não cumprimento das legislações vigentes.',
+    conclusao3: '<b>DECLARO</b> estar ciente de que as responsabilidades poderão ser cumuladas na esfera civil, penal e administrativa, decorrentes de eventuais prejuízos a terceiros, e ainda estar ciente de todas as sanções previstas na legislação federal, estadual e municipal entre outras, as constantes nos seguintes artigos:',
+    efluentes: 'Na condição de Proprietário e Responsável Técnico, <b>DECLARAMOS</b> para todos os fins, que o sistema de tratamento de efluentes atende as normas técnicas vigentes, se encontra em perfeito funcionamento e respeita os afastamentos mínimos de divisas e de edificações, sendo composto de:'
+  };
+
+  // Checklists: item = texto ou [texto, [subitens]]
+  var INFO_PRANCHAS = [
+    'Todas as pranchas deverão conter espaço adequado no selo reservado para os carimbos de aprovação da prefeitura;',
+    'Todas as informações das pranchas deverão estar legíveis (cotas, textos, símbolos, etc);',
+    'No projeto arquitetônico devem estar especificadas todos os afastamentos da edificação em relação as divisas;',
+    'O sistema de tratamento de efluentes deve ser cotado de forma a demonstrar os afastamentos mínimos;',
+    'Em edificações comerciais, devem ser especificados todos os níveis internos garantindo a acessibilidade;'
+  ];
+  var LEI_PARCELAMENTO = 'Lei Municipal 3.479/2012 – Dispõe sobre o Parcelamento do Solo para Fins Urbanos no Município de Seberi – RS e dá outras providências';
+  var CHECKLISTS = {
+    obras: {
+      titulo: 'Aprovação de Projeto', sub: 'Obras novas e/ou ampliações',
+      grupos: [
+        { t: 'Obrigatórios', itens: ['Requerimento Padrão', 'Termo de Compromisso Projeto e Execução', 'Matrícula atualizada do imóvel (validade 90 dias)', 'ART/RRT registrada (ou com comprovante de pagamento anexo)',
+          ['Projeto Arquitetônico Completo', ['Planta de Situação', 'Planta de Implantação', 'Planta Baixa (de todos os pavimentos)', 'Cortes (mínimo 02)', 'Elevações (mínimo 02)']],
+          ['Projetos Complementares', ['Planta Elétrica', 'Planta Hidráulica*', 'Planta Sanitária*', 'Memorial de cálculo do sistema de tratamento de efluentes', 'Projeto de Acessibilidade de Passeio Público**']],
+          'Memorial Descritivo'],
+          obs: ['*Pode ser apresentado em planta única o sistema hidrossanitário (hidráulico+sanitário)', '**Pode ser apresentado em planta única o projeto arquitetônico e do passeio público'] },
+        { t: 'Facultativos (a depender do caso específico)', itens: ['Alvará/Protocolo de PPCI (ou declaração de dispensa)', 'Licença Ambiental',
+          ['Documentos relacionados a instituição de condomínio', ['Plantas demonstrativas de áreas', 'Memorial Descritivos de áreas', 'Quadros da NBR 12721/2005']],
+          'Estudos complementares conforme necessidade específica'] }
+      ],
+      info: INFO_PRANCHAS
+    },
+    regularizacao: {
+      titulo: 'Aprovação de Projeto', sub: 'Regularizações',
+      grupos: [
+        { t: 'Obrigatórios', itens: ['Requerimento Padrão', 'Termo de Compromisso de Regularização', 'Matrícula atualizada do imóvel (validade 90 dias)', 'ART/RRT registrada (ou com comprovante de pagamento anexo)',
+          ['Projeto Arquitetônico Completo', ['Planta de Situação', 'Planta de Implantação', 'Planta Baixa de todos os pavimentos', 'Cortes (mínimo 02)', 'Elevações (mínimo 02)']],
+          'Locação Simplificada do Tratamento de Efluentes', 'Memorial Descritivo', 'Laudo Técnico', 'Declaração do Sistema de Tratamento de Efluentes'] },
+        { t: 'Facultativos (a depender do caso específico)', itens: ['Alvará/Protocolo de PPCI (ou declaração de dispensa)', 'Licença Ambiental',
+          ['Documentos relacionados a instituição de condomínio', ['Plantas demonstrativas de áreas', 'Memorial Descritivos de áreas', 'Quadros da NBR 12721/2005', 'Minuta de Convenção de Condomínio']],
+          'Outros documentos pertinentes ao processo'] }
+      ],
+      info: ['Todos os documentos deverão ser encaminhados em três vias;'].concat(INFO_PRANCHAS, [
+        'Caso a matrícula não esteja em nome do requerente, deve ser apresentado contrato/escritura pública de compra e venda;',
+        'O laudo técnico e o memorial descritivo podem ser um documento único;',
+        'A ART deve incluir a atividade de laudo técnico;',
+        'Em caso de haver irregularidades construtivas na obra, buscar o encaixe na Lei Municipal de Regularizações (se vigente);'])
+    },
+    habitese: {
+      titulo: 'Habite-se', sub: '',
+      grupos: [
+        { t: 'Obrigatórios', itens: ['Requerimento Padrão', 'Termo de Conclusão de Obra'] },
+        { t: 'Facultativos (a depender do caso específico)', itens: ['Alvará de PPCI (ou declaração de dispensa)', 'Licença Ambiental', 'Carta de Entrega de Elevador (se houver)', 'Outros documentos pertinentes ao processo'] }
+      ],
+      info: ['Na vistoria de habite-se serão verificadas todas as medidas externas/recuos conforme projeto aprovado;',
+        'Será verificada a instalação dos equipamentos de proteção contra incêndio, mesmo nos casos dispensados de apresentação de alvará, visto que a legislação dispensa do licenciamento e não da instalação dos equipamentos de proteção;']
+    },
+    parcelamento: {
+      titulo: 'Parcelamento de Solo Urbano', sub: 'Exceto loteamentos',
+      grupos: [
+        { t: 'Obrigatórios', itens: ['Requerimento Padrão', 'Matrícula atualizada do imóvel (validade 90 dias)', 'ART/RRT registrada (ou com comprovante de pagamento anexo)',
+          ['Planta de Situação Anterior ao Parcelamento', ['Identificação do lote e suas confrontações', 'Localização de edificações existentes (se houver)']],
+          ['Planta de Situação Posterior ao Parcelamento', ['Identificação do lote e suas confrontações']],
+          ['Memorial Descritivo', ['Descrição da situação anterior ao parcelamento', 'Descrição da situação posterior ao parcelamento e áreas remanescentes']]] }
+      ],
+      info: ['Todos os documentos deverão ser entregues em 03 vias;', 'As plantas deverão ser assinadas pelos proprietários lindeiros;',
+        'Serão aprovados parcelamentos de solo (exceto loteamento) apenas em áreas com infraestrutura existente;', LEI_PARCELAMENTO]
+    },
+    loteamento: {
+      titulo: 'Parcelamento de Solo Urbano', sub: 'Loteamentos', compacto: true,
+      grupos: [
+        { t: 'Fase 01 – Análise prévia (1 via)', itens: ['Requerimento Padrão', 'Matrícula Atualizada da Área (Validade 90 dias)', 'Projeto Urbanístico', 'Quadro de Áreas', 'Licença Ambiental Prévia (LAP)', 'Levantamento Planialtimétrico'] },
+        { t: 'Fase 02 – Análise complementar (3 vias)', itens: ['Requerimento Padrão', 'Matrícula Atualizada da Área (Validade 90 dias)', 'Projeto Urbanístico (Aprovado na Fase 01)', 'Planta de Situação da Gleba',
+          ['Projetos Complementares', ['Projeto Rede de Energia + Iluminação Pública (Certificado RGE/CRELUZ)', 'Projeto Rede de Água (Certificado CORSAN)', 'Projeto Rede de Esgoto Sanitário (Certificado CORSAN)', 'Projeto Rede de Drenagem Pluvial', 'Projeto Pavimentação', 'Projeto Passeio Público/Acessibilidade']],
+          'Anotação de Responsabilidade Técnica', 'Licença Ambiental de Instalação (LAI)'] },
+        { t: 'Fase 03 – Análise final / recebimento (3 vias)', itens: ['Requerimento Padrão', 'Memorial Descritivo dos Lotes p/ Registro', 'Relatório Final de Execução dos Serviços',
+          ['Projetos complementares', ['Projeto Rede de Energia + Iluminação Pública (Aprovação RGE/CRELUZ)', 'Projeto Rede de Água (Aprovação CORSAN)', 'Projeto Rede de Esgoto Sanitário (Aprovação CORSAN)']],
+          'Licença Ambiental de Operação (LAO)'] }
+      ],
+      internos: ['Vistoria da Execução das Obras conforme Projetos Aprovados;', 'Emissão de Certidões de Recebimento p/ Cartório;', 'Lei Recebendo as Ruas em Doação.'],
+      info: ['Todos os documentos deverão ser entregues em 03 vias;', LEI_PARCELAMENTO,
+        'Projeto de Passeio Público/Acessibilidade deve atender ao disposto nas NBRs 9050 e 16537 (versões atualizadas);',
+        'Deve ser entregue ao final projeto as built em formato digital para arquivo.']
+    }
+  };
+
+  // ---------- Utilitários ----------
+  var $ = function (id) { return document.getElementById(id); };
+  var MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function val(id) { return ($(id).value || '').trim(); }
+  function num(v, min, max) { return v.toLocaleString('pt-BR', { minimumFractionDigits: min == null ? 2 : min, maximumFractionDigits: max == null ? 2 : max }); }
+  function lerNumero(t) { var n = parseFloat(String(t || '').replace(/[^\d,]/g, '').replace(',', '.')); return isFinite(n) ? n : 0; }
+  // Valor preenchido ou uma linha em branco (o documento continua utilizável se impresso incompleto)
+  function f(texto) { return texto ? esc(texto) : '<span class="branco"></span>'; }
+  function fUnid(id, unid) { var t = val(id); return t ? esc(t) + (unid ? ' ' + unid : '') : '<span class="branco"></span>'; }
+
+  function hojeISO() { var d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+  function dataExtenso() {
+    var p = (val('dataDoc') || hojeISO()).split('-');
+    return 'Seberi, ' + parseInt(p[2], 10) + ' de ' + MESES[parseInt(p[1], 10) - 1] + ' de ' + p[0] + '.';
+  }
+
+  // ---------- Máscaras ----------
+  function mascarar(el) {
+    var d = el.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, parseInt(el.getAttribute('data-digitos'), 10) || 13);
+    el.value = d ? num(parseInt(d, 10) / 100) : '';
+  }
+  function mascaraDoc(el) {
+    var d = el.value.replace(/\D/g, '').slice(0, 14);
+    if (d.length <= 11) el.value = d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    else el.value = d.replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d)/, '.$1/$2').replace(/(\d{4})(\d)/, '$1-$2');
+  }
+  function mascaraFone(el) {
+    var d = el.value.replace(/\D/g, '').slice(0, 11);
+    if (d.length > 6) el.value = '(' + d.slice(0, 2) + ') ' + d.slice(2, d.length - 4) + '-' + d.slice(-4);
+    else if (d.length > 2) el.value = '(' + d.slice(0, 2) + ') ' + d.slice(2);
+    else el.value = d;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-mascara]'), function (el) {
+    var tipo = el.getAttribute('data-mascara');
+    var fn = tipo === 'num' ? mascarar : tipo === 'doc' ? mascaraDoc : mascaraFone;
+    el.addEventListener('input', function () { fn(el); });
+    if (tipo === 'num') {
+      // Ao colar "80,6" ou "1.234,5", interpretar como número e não como dígitos soltos
+      el.addEventListener('paste', function (e) {
+        var t = (e.clipboardData || window.clipboardData).getData('text');
+        if (/[.,]/.test(t)) { e.preventDefault(); var n = lerNumero(t); el.value = n ? num(n) : ''; atualizar(); }
+      });
+    }
+  });
+
+  // ---------- Montagem dos controles ----------
+  $('tipo').innerHTML = '<option value="">Selecione…</option>' + TIPOS.map(function (t) { return '<option value="' + t.id + '">' + esc(t.nome) + '</option>'; }).join('');
+  $('tipoProj').innerHTML = '<option value=""></option>' + TIPOS_NBR.map(function (t) { return '<option>' + t + '</option>'; }).join('');
+  $('tabCriterios').innerHTML = '<tr><th>Critério</th><th>Baixo</th><th>Normal</th><th>Alto</th></tr>' +
+    CRITERIOS.map(function (r) { return '<tr>' + r.map(function (c, i) { return i ? '<td>' + esc(c) + '</td>' : '<th>' + esc(c) + '</th>'; }).join('') + '</tr>'; }).join('');
+  $('dataDoc').value = hojeISO();
+
+  function tipoAtual() { var id = $('tipo').value; for (var i = 0; i < TIPOS.length; i++) if (TIPOS[i].id === id) return TIPOS[i]; return null; }
+
+  function montarListaDocs() {
+    var t = tipoAtual();
+    if (!t) { $('listaDocs').innerHTML = '<div class="dica">Escolha o tipo de solicitação para ver os documentos.</div>'; $('dicaDocs').textContent = ''; return; }
+    $('listaDocs').innerHTML = ORDEM.filter(function (k) { return k !== 'chk' || t.check; }).map(function (k) {
+      var marcado = t.docs.indexOf(k) >= 0;
+      return '<label><input type="checkbox" name="doc" value="' + k + '"' + (marcado ? ' checked' : '') + '> ' +
+        esc(DOCS[k].nome) + '<span class="cod">' + DOCS[k].cod + '</span></label>';
+    }).join('');
+    $('dicaDocs').textContent = 'Já vêm marcados os documentos padrão deste tipo de solicitação; marque ou desmarque conforme o caso.';
+  }
+
+  function docsSelecionados() {
+    return Array.prototype.filter.call(document.querySelectorAll('input[name="doc"]'), function (c) { return c.checked; }).map(function (c) { return c.value; });
+  }
+  function radio(nome) { var r = document.querySelector('input[name="' + nome + '"]:checked'); return r ? r.value : ''; }
+
+  // ---------- Pessoas ----------
+  // Monta o endereço a partir dos campos separados: "Rua X, nº 10, Apto 2, Bairro Centro, Seberi/RS"
+  function logradouro(px) {
+    var rua = val(px + 'Rua'), n = val(px + 'Num'), c = val(px + 'Comp'), partes = [];
+    var num = !n ? '' : /^s\/?n\.?$/i.test(n) ? 's/n' : 'nº ' + n;
+    if (rua || num) partes.push([rua, num].filter(Boolean).join(', '));
+    if (c) partes.push(c);
+    return partes.join(', ');
+  }
+  function endereco(px) {
+    var partes = [logradouro(px)], b = val(px + 'Bairro'), m = $(px + 'Cidade') ? val(px + 'Cidade') : '';
+    if (b) partes.push('Bairro ' + b);
+    if (m) partes.push(m);
+    return partes.filter(Boolean).join(', ');
+  }
+  function rtProjeto() { return { nome: val('rtpNome'), reg: val('rtpReg'), art: val('rtpArt'), end: endereco('rtp'), fone: val('rtpFone') }; }
+  function rtExecucao() {
+    if ($('mesmoRt').checked) return rtProjeto();
+    return { nome: val('rteNome'), reg: val('rteReg'), art: val('rteArt'), end: endereco('rte'), fone: val('rteFone') };
+  }
+  function prop() { return { nome: val('propNome'), doc: val('propDoc'), end: endereco('prop'), fone: val('propFone') }; }
+
+  // ---------- Peças do documento ----------
+  function cabecalho(rot, nome, sub, cod) {
+    return '<div class="faixa"></div><div class="miolo"><div class="topo"><img src="assets/logo-seberi.png" alt="">' +
+      '<div class="titulo"><div class="rot">' + rot + '</div><div class="nome">' + nome + '</div>' +
+      (sub ? '<div class="sub">' + sub + '</div>' : '') + '<div class="cod">' + cod + '</div></div></div>';
+  }
+  function rodape() {
+    return '</div><div class="rodape"><div><b>Prefeitura Municipal de Seberi</b> · Estado do Rio Grande do Sul<br>Secretaria Municipal de Desenvolvimento – Departamento de Engenharia</div>' +
+      '<div>Avenida General Flores da Cunha, 831 – Centro – CEP 98380-000<br>Fones: 55.3746.1122 e 55.3746.1127 · www.pmseberi.com.br</div></div>';
+  }
+  function pagina(id, html, cls) { return '<div class="pagina moderno' + (cls ? ' ' + cls : '') + '" data-doc="' + id + '">' + html + rodape() + '</div>'; }
+  function marca(ok, texto) { return '<div class="marca' + (ok ? ' x' : '') + '"><span class="caixa' + (ok ? ' x' : '') + '"></span><span>' + texto + '</span></div>'; }
+  function leis() { return '<ul class="leis">' + LEIS.map(function (l) { return '<li>' + l + '</li>'; }).join('') + '</ul>'; }
+
+  function assinaturas(lista) {
+    // lista: [{papel, nome, linha}] – remove responsáveis repetidos
+    var vistos = {}, itens = [];
+    lista.forEach(function (a) {
+      var chave = a.papel.indexOf('Responsável') === 0 ? (a.nome || a.papel) + '|' + a.linha : a.papel;
+      if (vistos[chave]) { vistos[chave].papel = 'Responsável técnico – projeto e execução'; return; }
+      vistos[chave] = a; itens.push(a);
+    });
+    var html = itens.map(function (a, i) {
+      var centro = itens.length === 1 ? ' centro' : '';
+      return '<div class="ass' + centro + '"><small>' + esc(a.papel) + '</small><b>' + (a.nome ? esc(a.nome) : '&nbsp;') + '</b>' + esc(a.linha) + '</div>';
+    }).join('');
+    return '<div class="local-data">' + dataExtenso() + '</div><div class="assinaturas' + (itens.length > 2 ? ' tres' : '') + '">' + html + '</div>';
+  }
+  function assProp() { var p = prop(); return { papel: 'Proprietário', nome: p.nome, linha: 'CPF/CNPJ: ' + (p.doc || '') }; }
+  function assRt(rt, papel) { return { papel: papel, nome: rt.nome, linha: 'CREA/CAU: ' + (rt.reg || '') }; }
+
+  function dadosObra(arts) {
+    var h = '<div class="dados"><div><b>Endereço da obra:</b> ' + f(endereco('obra')) + '</div><div><b>Matrícula do lote:</b> ' + f(val('obraMat')) + '</div>';
+    arts.forEach(function (a) { h += '<div><b>' + a.rot + ':</b> ' + f(a.v) + '</div>'; });
+    return h + '</div>';
+  }
+  function artsDe(lista) {
+    // lista: [{rt, rot}]; junta quando o mesmo RT/ART aparece duas vezes
+    var out = [];
+    lista.forEach(function (x) {
+      if (out.some(function (o) { return o.v === x.rt.art && o.nome === x.rt.nome; })) return;
+      out.push({ rot: x.rot, v: x.rt.art, nome: x.rt.nome });
+    });
+    if (out.length === 1) out[0].rot = 'ART/RRT';
+    return out;
+  }
+
+  // ---------- Documentos ----------
+  function docReq() {
+    var p = prop(), t = tipoAtual(), outro = val('outroDesc');
+    var opcoes = TIPOS.map(function (o) {
+      var txt = esc(o.nome);
+      if (o.id === 'outro' && t.id === 'outro' && outro) txt += ': ' + esc(outro);
+      return marca(o.id === t.id, txt);
+    }).join('');
+    var rt = rtProjeto(), ass = [assProp()];
+    if (rt.nome) ass.push(assRt(rt, 'Responsável técnico'));
+    return pagina('req', cabecalho('Secretaria Municipal de Desenvolvimento', 'Requerimento', 'Padrão', 'REQ-1 · ' + REVISAO) +
+      '<div class="texto"><p class="saudacao">ILUSTRÍSSIMO SR. PREFEITO MUNICIPAL DE SEBERI</p>' +
+      '<p>Eu, <b>' + f(p.nome) + '</b>, inscrito(a) no CPF/CNPJ nº ' + f(p.doc) + ', residente à ' + f(p.end) +
+      (p.fone ? ', telefone ' + esc(p.fone) : '') + ', venho através deste solicitar que Vossa Senhoria se digne a autorizar:</p></div>' +
+      '<div class="marcas duas">' + opcoes + '</div>' +
+      '<h4>Dados</h4>' + dadosObra([]).replace('<div class="dados">', '<div class="dados" style="margin-top:0">') +
+      '<div class="texto"><p>Nestes termos, pede deferimento.</p></div>' +
+      '<div class="empurra"></div>' + assinaturas(ass));
+  }
+
+  function itemD1(rot, conteudo, cls) { return '<div class="item' + (cls ? ' ' + cls : '') + '"><small>' + rot + '</small><strong>' + conteudo + '</strong></div>'; }
+  function blocoRt(rt) {
+    return itemD1('Responsável técnico', f(rt.nome), 'duplo') + itemD1('CREA/CAU', f(rt.reg)) +
+      itemD1('Endereço', f(rt.end), 'duplo') + itemD1('Telefone', f(rt.fone));
+  }
+  function linhaRt(rot, rt) {
+    return '<tr><td>' + rot + '</td><td><b>' + f(rt.nome) + '</b>' + f(rt.reg) + '</td><td>' + f(rt.end) + '</td><td style="white-space:nowrap">' + f(rt.fone) + '</td></tr>';
+  }
+  function docD1() {
+    var p = prop(), rp = rtProjeto(), re = rtExecucao(), uso = radio('uso');
+    var usoHtml = ['RESIDENCIAL', 'COMERCIAL', 'INDUSTRIAL'].map(function (u) { return marca(u === uso, u.charAt(0) + u.slice(1).toLowerCase()); }).join('');
+    var tipoProj = val('tipoProj');
+    var padrao = tipoProj.indexOf('GI ') === 0 ? 'GI' : val('padrao');
+    var ass = [assProp(), assRt(rp, 'Responsável técnico – projeto')];
+    if (!$('mesmoRt').checked) ass.push(assRt(re, 'Responsável técnico – execução'));
+    return pagina('d1', cabecalho('Secretaria Municipal de Desenvolvimento', 'Dados para Aprovação', 'de projeto de construção', 'D-1 · ' + REVISAO) +
+      '<h4>Proprietário</h4><div class="grade">' + itemD1('Proprietário', f(p.nome), 'duplo') + itemD1('CPF/CNPJ', f(p.doc)) +
+        itemD1('Endereço do proprietário', f(p.end), 'duplo') + itemD1('Telefone', f(p.fone)) + '</div>' +
+      ($('mesmoRt').checked ? '<h4>Responsável técnico – projeto e execução</h4><div class="grade">' + blocoRt(rp) + '</div>'
+        : '<h4>Responsáveis técnicos</h4><table class="rts"><tr><th></th><th>Nome / CREA-CAU</th><th>Endereço</th><th>Telefone</th></tr>' + linhaRt('Projeto', rp) + linhaRt('Execução', re) + '</table>') +
+      '<h4>Obra</h4><div class="grade g4">' + itemD1('Endereço da obra', f(logradouro('obra')), 'duplo') + itemD1('Bairro', f(val('obraBairro'))) + itemD1('Matrícula', f(val('obraMat'))) +
+        itemD1('Quadra', f(val('quadra'))) + itemD1('Lote', f(val('lote'))) +
+        '<div class="item duplo"><small>Uso da edificação</small><div class="marcas" style="grid-template-columns:repeat(3,auto);margin:1mm 0 0;justify-content:start;gap:5mm">' + usoHtml + '</div></div></div>' +
+      '<h4>Índices urbanísticos</h4><div class="grade g5">' + itemD1('Área do terreno', fUnid('areaTerreno', 'm²')) + itemD1('Área construída', fUnid('areaConstr', 'm²')) +
+        itemD1('Taxa de ocupação', fUnid('taxaOcup', '%')) + itemD1('Índice de aproveitamento', fUnid('indAprov')) + itemD1('Taxa de permeabilidade', fUnid('taxaPerm', '%')) + '</div>' +
+      '<h4>Áreas construídas e padrão da construção</h4><div class="grade g4">' + itemD1('Área total construída', fUnid('areaTotal', 'm²')) + itemD1('Área equivalente', fUnid('areaEquiv', 'm²')) +
+        itemD1('Tipo de projeto (NBR 12721)', f(tipoProj)) + itemD1('Padrão de acabamento', f(padrao)) + '</div>' +
+      '<div class="empurra"></div>' + assinaturas(ass), 'compacto');
+  }
+
+  function docTermo(id, cod, sub, paragrafos, leisTxt, ass, arts, extraAntes) {
+    return pagina(id, cabecalho('Secretaria Municipal de Desenvolvimento', 'Termo de Compromisso', sub, cod + ' · ' + REVISAO) +
+      '<div class="texto">' + paragrafos.map(function (t) { return '<p>' + t + '</p>'; }).join('') + (extraAntes || '') +
+      '<p>' + leisTxt + '</p>' + leis() + '</div>' + dadosObra(arts) +
+      '<div class="empurra"></div>' + assinaturas(ass));
+  }
+  function docTc() {
+    var esc_ = $('escopo').value, rp = rtProjeto(), re = rtExecucao();
+    if (esc_ === 'p') return docTermo('tc', 'TC-2', 'Projeto', [TXT.autor], TXT.cientesObra, [assProp(), assRt(rp, 'Responsável técnico – projeto')], artsDe([{ rt: rp, rot: 'ART/RRT' }]));
+    if (esc_ === 'e') return docTermo('tc', 'TC-3', 'Execução', [TXT.execucao], TXT.cientesObra, [assProp(), assRt(re, 'Responsável técnico – execução')], artsDe([{ rt: re, rot: 'ART/RRT' }]));
+    return docTermo('tc', 'TC-1', 'Projeto e Execução', [TXT.autor, TXT.execucao], TXT.cientesObra,
+      [assProp(), assRt(rp, 'Responsável técnico – projeto'), assRt(re, 'Responsável técnico – execução')],
+      artsDe([{ rt: rp, rot: 'ART/RRT (projeto)' }, { rt: re, rot: 'ART/RRT (execução)' }]));
+  }
+  function docTc4() {
+    var rp = rtProjeto();
+    return docTermo('tc4', 'TC-4', 'Regularização', [TXT.regularizacao], TXT.cientes, [assProp(), assRt(rp, 'Responsável técnico')], artsDe([{ rt: rp, rot: 'ART/RRT' }]));
+  }
+  function docTc5() {
+    var re = rtExecucao();
+    var p1 = 'Na condição de Proprietário e Responsável Técnico <b>DECLARAMOS</b> para os devidos fins que a edificação se encontra concluída de acordo com o projeto aprovado pelo alvará nº ' + f(val('alvara')) + '.';
+    return docTermo('tc5', 'TC-5', 'Conclusão de Obra', [p1, TXT.conclusao2], TXT.conclusao3, [assProp(), assRt(re, 'Responsável técnico')], artsDe([{ rt: re, rot: 'ART/RRT' }]));
+  }
+  function docDec1() {
+    var rp = rtProjeto(), s = radio('sistema');
+    var opcoes = '<div class="marcas">' + marca(s === '1', 'Fossa, filtro e sumidouro') + marca(s === '2', 'Fossa, filtro, clorador e ligação na rede pública*') +
+      '</div><p style="font-size:8.5pt;color:#5f6f66;margin:-2mm 0 4mm 8mm">*Mediante autorização do departamento ambiental do município.</p>';
+    return pagina('dec1', cabecalho('Secretaria Municipal de Desenvolvimento', 'Declaração', 'Sistema de Tratamento de Efluentes', 'DEC-1 · ' + REVISAO) +
+      '<div class="texto"><p>' + TXT.efluentes + '</p>' + opcoes + '<p>' + TXT.cientes + '</p>' + leis() + '</div>' +
+      dadosObra(artsDe([{ rt: rp, rot: 'ART/RRT' }])) + '<div class="empurra"></div>' + assinaturas([assProp(), assRt(rp, 'Responsável técnico')]));
+  }
+
+  function itensChk(itens) {
+    return '<div class="marcas">' + itens.map(function (it) {
+      if (typeof it === 'string') return marca(false, esc(it));
+      return '<div>' + marca(false, esc(it[0])) + '<ul class="sub">' + it[1].map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul></div>';
+    }).join('') + '</div>';
+  }
+  function docChk() {
+    var c = CHECKLISTS[tipoAtual().check];
+    var h = cabecalho('Relação de documentos para protocolo', c.titulo, c.sub, 'Departamento de Engenharia · ' + REVISAO) + '<div class="chk' + (c.compacto ? ' compacto' : '') + '">';
+    var p = prop();
+    if (p.nome || endereco('obra')) h += '<div class="dados" style="margin-top:4mm;font-size:9.5pt"><div><b>Requerente:</b> ' + f(p.nome) + '</div><div><b>Endereço da obra:</b> ' + f(endereco('obra')) + '</div></div>';
+    c.grupos.forEach(function (g) {
+      h += '<h4>' + esc(g.t) + '</h4>' + itensChk(g.itens);
+      if (g.obs) h += g.obs.map(function (o) { return '<div class="obs-chk">' + esc(o) + '</div>'; }).join('');
+    });
+    if (c.internos) h += '<h4>Procedimentos internos</h4><ul class="info">' + c.internos.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul>';
+    h += '<h4>Informações adicionais</h4><ul class="info">' + c.info.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul></div>';
+    return pagina('chk', h);
+  }
+
+  var GERADORES = { chk: docChk, req: docReq, d1: docD1, tc: docTc, tc4: docTc4, tc5: docTc5, dec1: docDec1 };
+
+  // ---------- Atualização da tela ----------
+  var previa = $('previa');
+  function excedeFolha(p) {
+    var z = p.style.zoom; p.style.zoom = 1;
+    var m = p.querySelector('.miolo'), excede = m.scrollHeight > m.clientHeight + 1 || p.scrollHeight > 1124;
+    p.style.zoom = z; return excede;
+  }
+  function ajustarPrevia() {
+    var largura = $('rolagem').clientWidth - 32;
+    if (largura > 0) Array.prototype.forEach.call(document.querySelectorAll('.previa .pagina'), function (p) { p.style.zoom = Math.min(1, largura / 794); });
+  }
+
+  function atualizar() {
+    var t = tipoAtual(), docs = t ? docsSelecionados() : [];
+    var tem = function (k) { return docs.indexOf(k) >= 0; };
+    var escopo = $('escopo').value;
+
+    $('cOutro').hidden = !(t && t.id === 'outro');
+    $('cEscopo').hidden = !tem('tc');
+    $('sD1').hidden = !tem('d1');
+    $('gLote').hidden = !tem('d1');
+    $('sDec').hidden = !tem('dec1');
+    $('cAlvara').hidden = !tem('tc5');
+    // Execução separada só faz sentido quando algum documento cita a execução
+    var citaExecucao = tem('d1') || (tem('tc') && escopo !== 'p') || tem('tc5');
+    $('lMesmo').hidden = !citaExecucao;
+    $('sRtExec').hidden = !citaExecucao || $('mesmoRt').checked;
+    $('tRtProj').textContent = citaExecucao && !$('mesmoRt').checked ? 'Responsável técnico pelo projeto' : 'Responsável técnico';
+
+    var tipoProj = val('tipoProj');
+    var ehGI = tipoProj.indexOf('GI ') === 0;
+    $('padrao').disabled = ehGI;
+    if (ehGI) $('padrao').value = '';
+
+    var ordenados = ORDEM.filter(tem);
+    $('rolagem').innerHTML = ordenados.length ? ordenados.map(function (k) { return GERADORES[k](); }).join('')
+      : '<div class="vazio">' + (t ? 'Marque ao menos um documento.' : 'Escolha o tipo de solicitação para montar os documentos.') + '</div>';
+    ajustarPrevia();
+
+    $('stTipo').textContent = t ? t.nome : 'Escolha o tipo de solicitação';
+    $('stDocs').textContent = ordenados.length ? ordenados.length + (ordenados.length > 1 ? ' documentos · ' : ' documento · ') + ordenados.map(function (k) { return k === 'tc' ? ({ pe: 'TC-1', p: 'TC-2', e: 'TC-3' })[escopo] : DOCS[k].cod; }).join(', ') : 'Nenhum documento selecionado';
+  }
+
+  // ---------- Validação e impressão ----------
+  function validar() {
+    var t = tipoAtual(), docs = docsSelecionados(), faltam = [];
+    var tem = function (k) { return docs.indexOf(k) >= 0; };
+    Array.prototype.forEach.call(document.querySelectorAll('.campo.invalido'), function (c) { c.classList.remove('invalido'); });
+    function exigir(idCampo, ok, rotulo) { if (!ok) { $(idCampo).classList.add('invalido'); faltam.push(rotulo); } }
+
+    exigir('cTipo', !!t, 'tipo de solicitação');
+    if (!t) return faltam;
+    if (!docs.length) { faltam.push('ao menos um documento'); return faltam; }
+    if (t.id === 'outro') exigir('cOutro', val('outroDesc'), 'descrição da solicitação');
+
+    var soChecklist = docs.length === 1 && tem('chk');
+    if (!soChecklist) {
+      exigir('cPropNome', val('propNome'), 'nome do proprietário');
+      var d = val('propDoc').replace(/\D/g, '');
+      exigir('cPropDoc', d.length === 11 || d.length === 14, 'CPF/CNPJ válido');
+      exigir('cPropRua', val('propRua'), 'logradouro do proprietário');
+      exigir('cPropNum', val('propNum'), 'nº do proprietário (ou s/n)');
+      exigir('cPropBairro', val('propBairro'), 'bairro do proprietário');
+      exigir('cPropCidade', val('propCidade'), 'município do proprietário');
+      exigir('cObraRua', val('obraRua'), 'logradouro da obra');
+      exigir('cObraNum', val('obraNum'), 'nº da obra (ou s/n)');
+      exigir('cObraBairro', val('obraBairro'), 'bairro da obra');
+      exigir('cObraMat', val('obraMat'), 'matrícula');
+    }
+    var precisaRt = docs.some(function (k) { return k !== 'req' && k !== 'chk'; });
+    if (precisaRt) {
+      exigir('cRtpNome', val('rtpNome'), 'nome do responsável técnico');
+      exigir('cRtpReg', val('rtpReg'), 'CREA/CAU');
+      exigir('cRtpArt', val('rtpArt'), 'ART/RRT');
+      if (!$('sRtExec').hidden) {
+        exigir('cRteNome', val('rteNome'), 'responsável pela execução');
+        exigir('cRteReg', val('rteReg'), 'CREA/CAU da execução');
+        exigir('cRteArt', val('rteArt'), 'ART/RRT da execução');
+      }
+    }
+    if (tem('d1')) {
+      exigir('cUso', radio('uso'), 'uso da edificação');
+      exigir('cAreaTerreno', val('areaTerreno'), 'área do terreno');
+      exigir('cAreaTotal', val('areaTotal'), 'área total construída');
+      exigir('cTipoProj', val('tipoProj'), 'tipo de projeto');
+      if (!$('padrao').disabled) exigir('cPadrao', val('padrao'), 'padrão de acabamento');
+    }
+    if (tem('tc5')) exigir('cAlvara', val('alvara'), 'nº do alvará');
+    if (tem('dec1')) exigir('cSistema', radio('sistema'), 'sistema de tratamento');
+    exigir('cData', val('dataDoc'), 'data');
+    return faltam;
+  }
+
+  function avisar(msg) { $('aviso').textContent = msg; $('aviso').classList.toggle('ativo', !!msg); }
+
+  $('btnPdf').addEventListener('click', function () {
+    var faltam = validar();
+    if (faltam.length) { avisar('Informe: ' + faltam.join(', ') + '.'); return; }
+    atualizar();
+    previa.open = true;
+    // Cada documento precisa caber numa folha A4 (o miolo não pode invadir o rodapé)
+    var cheias = Array.prototype.filter.call(document.querySelectorAll('.previa .pagina'), excedeFolha);
+    if (cheias.length) { avisar('Algum documento passou de uma página. Encurte os textos mais longos (endereços, descrição).'); return; }
+    avisar('');
+    var titulo = document.title;
+    document.title = 'Protocolo - ' + (val('propNome') || tipoAtual().nome);
+    window.print();
+    document.title = titulo;
+  });
+
+  $('btnNovo').addEventListener('click', function () {
+    if (!confirm('Limpar todos os campos e começar um novo protocolo?')) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.coluna input, .coluna select'), function (el) {
+      if (el.type === 'radio' || el.type === 'checkbox') el.checked = el.id === 'mesmoRt';
+      else el.value = '';
+    });
+    $('escopo').value = 'pe';
+    $('dataDoc').value = hojeISO();
+    $('propCidade').value = 'Seberi/RS';
+    avisar('');
+    Array.prototype.forEach.call(document.querySelectorAll('.campo.invalido'), function (c) { c.classList.remove('invalido'); });
+    montarListaDocs(); atualizar();
+  });
+
+  $('tipo').addEventListener('change', function () { montarListaDocs(); atualizar(); });
+  // Ao preencher um campo marcado como faltando, tira o destaque vermelho
+  document.querySelector('.coluna').addEventListener('input', function (e) { var c = e.target.closest('.campo.invalido'); if (c) c.classList.remove('invalido'); });
+  document.querySelector('.coluna').addEventListener('change', function (e) { var c = e.target.closest('.campo.invalido'); if (c) c.classList.remove('invalido'); });
+  document.querySelector('.coluna').addEventListener('input', atualizar);
+  document.querySelector('.coluna').addEventListener('change', atualizar);
+  window.addEventListener('resize', ajustarPrevia);
+  previa.addEventListener('toggle', ajustarPrevia);
+  if (matchMedia('(min-width: 861px)').matches) previa.open = true;
+  window.addEventListener('beforeprint', function () { previa.open = true; });
+
+  montarListaDocs();
+  atualizar();
+})();
+</script>
+</body>
+</html>
