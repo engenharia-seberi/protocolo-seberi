@@ -88,6 +88,9 @@
   .nota-tipo { margin: 12px 0 0; font-size: 12.5px; color: var(--suave); }
 
   /* critérios de padrão */
+  .uso-bloco { border: 1px solid var(--linha); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+  .uso-tit { font-size: 13px; font-weight: 700; color: var(--verde); margin-bottom: 8px; }
+  .opcoes.duas { grid-template-columns: 1fr 1fr; }
   .criterios { margin-top: 8px; font-size: 13px; }
   .criterios summary { cursor: pointer; color: var(--verde); font-weight: 600; }
   .criterios .tab { overflow-x: auto; margin-top: 8px; }
@@ -165,8 +168,11 @@
   .moderno .ass b { display: block; font-size: 9.5pt; text-transform: uppercase; }
   .moderno .ass small { display: block; font-size: 6.5pt; letter-spacing: .1em; text-transform: uppercase; color: #1f6b3b; font-weight: 700; margin-bottom: .5mm; }
   .moderno .ass.centro { grid-column: 1 / -1; width: 50%; justify-self: center; }
-  .moderno.compacto h4 { margin: 4.5mm 0 2mm; }
-  .moderno.compacto .assinaturas { margin: 12mm 0 8mm; }
+  .moderno.compacto h4 { margin: 3mm 0 1.5mm; }
+  .moderno.compacto .item { padding: 1.5mm 3mm; }
+  .moderno.compacto .rts td { padding: 1.4mm 2mm; }
+  .moderno.compacto .local-data { margin-top: 4mm; }
+  .moderno.compacto .assinaturas { margin: 10mm 0 5mm; }
   .moderno .rodape { margin: 0 18mm; padding: 3mm 0 9mm; border-top: .75pt solid #cfd8d2; display: flex; justify-content: space-between; gap: 8mm; font-size: 7.5pt; line-height: 1.4; color: #5f6f66; flex: none; }
   .moderno .rodape div:last-child { text-align: right; }
   /* checklist */
@@ -215,6 +221,13 @@
         <label>Tipo de solicitação</label>
         <div class="opcoes" id="tipos"></div>
         <div class="dica">Marque mais de um para combinar pedidos — ex.: Regularização e Habite-se + Aprovação de Projeto (ampliação).</div>
+      </div>
+      <div class="campo" id="cParc" hidden>
+        <label>Parcelamento de solo (exceto loteamento)</label>
+        <div class="opcoes duas">
+          <label><input type="checkbox" name="parc" value="Desmembramento"> Desmembramento</label>
+          <label><input type="checkbox" name="parc" value="Unificação"> Unificação</label>
+        </div>
       </div>
       <div class="campo" id="cOutro" hidden>
         <label for="outroDesc">Descreva a solicitação</label>
@@ -325,10 +338,11 @@
         <div class="campo" id="cUso">
           <label>Uso da edificação</label>
           <div class="opcoes inline">
-            <label><input type="radio" name="uso" value="RESIDENCIAL"> Residencial</label>
-            <label><input type="radio" name="uso" value="COMERCIAL"> Comercial</label>
-            <label><input type="radio" name="uso" value="INDUSTRIAL"> Industrial</label>
+            <label><input type="checkbox" name="uso" value="RESIDENCIAL"> Residencial</label>
+            <label><input type="checkbox" name="uso" value="COMERCIAL"> Comercial</label>
+            <label><input type="checkbox" name="uso" value="INDUSTRIAL"> Industrial</label>
           </div>
+          <div class="dica">Uso misto: marque mais de um (ex.: residencial + comercial).</div>
         </div>
         <div class="subrot">Índices urbanísticos</div>
         <div class="dupla">
@@ -341,15 +355,41 @@
           <div class="campo"><label for="taxaPerm" title="Taxa de permeabilidade"><span class="curto">Tx. permeab.</span><span class="longo">Taxa de permeabilidade</span></label><div class="afixo sufixo"><input id="taxaPerm" inputmode="numeric" data-mascara="num" data-digitos="5"><span>%</span></div></div>
         </div>
         <div class="subrot">Áreas construídas e padrão da construção</div>
+        <div id="gUsos" hidden>
+          <div class="uso-bloco" data-uso="RESIDENCIAL" hidden>
+            <div class="uso-tit">Uso residencial</div>
+            <div class="campo" id="cTipoRESIDENCIAL"><label for="tipoRESIDENCIAL">Tipo de projeto (NBR 12721)</label><select id="tipoRESIDENCIAL" class="selNbr"></select></div>
+            <div class="dupla">
+              <div class="campo" id="cAreaRESIDENCIAL"><label for="areaRESIDENCIAL">Área</label><div class="afixo sufixo"><input id="areaRESIDENCIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+              <div class="campo" id="cPadraoRESIDENCIAL"><label for="padraoRESIDENCIAL">Padrão de acabamento</label><select id="padraoRESIDENCIAL"><option value=""></option><option>BAIXO</option><option>NORMAL</option><option>ALTO</option></select></div>
+            </div>
+          </div>
+          <div class="uso-bloco" data-uso="COMERCIAL" hidden>
+            <div class="uso-tit">Uso comercial</div>
+            <div class="campo" id="cTipoCOMERCIAL"><label for="tipoCOMERCIAL">Tipo de projeto (NBR 12721)</label><select id="tipoCOMERCIAL" class="selNbr"></select></div>
+            <div class="dupla">
+              <div class="campo" id="cAreaCOMERCIAL"><label for="areaCOMERCIAL">Área</label><div class="afixo sufixo"><input id="areaCOMERCIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+              <div class="campo" id="cPadraoCOMERCIAL"><label for="padraoCOMERCIAL">Padrão de acabamento</label><select id="padraoCOMERCIAL"><option value=""></option><option>BAIXO</option><option>NORMAL</option><option>ALTO</option></select></div>
+            </div>
+          </div>
+          <div class="uso-bloco" data-uso="INDUSTRIAL" hidden>
+            <div class="uso-tit">Uso industrial</div>
+            <div class="campo" id="cTipoINDUSTRIAL"><label for="tipoINDUSTRIAL">Tipo de projeto (NBR 12721)</label><select id="tipoINDUSTRIAL" class="selNbr"></select></div>
+            <div class="dupla">
+              <div class="campo" id="cAreaINDUSTRIAL"><label for="areaINDUSTRIAL">Área</label><div class="afixo sufixo"><input id="areaINDUSTRIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+              <div class="campo" id="cPadraoINDUSTRIAL"><label for="padraoINDUSTRIAL">Padrão de acabamento</label><select id="padraoINDUSTRIAL"><option value=""></option><option>BAIXO</option><option>NORMAL</option><option>ALTO</option></select></div>
+            </div>
+          </div>
+        </div>
         <div class="dupla" id="gAmpliacao" hidden>
           <div class="campo" id="cAreaReg"><label for="areaReg">Área a regularizar</label><div class="afixo sufixo"><input id="areaReg" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
           <div class="campo" id="cAreaAmp"><label for="areaAmp">Área a ampliar</label><div class="afixo sufixo"><input id="areaAmp" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
         </div>
         <div class="dupla">
-          <div class="campo" id="cAreaTotal"><label for="areaTotal">Área total construída</label><div class="afixo sufixo"><input id="areaTotal" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+          <div class="campo" id="cAreaTotal"><label for="areaTotal">Área total construída</label><div class="afixo sufixo"><input id="areaTotal" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div><div class="dica" id="dicaTotal"></div></div>
           <div class="campo"><label for="areaEquiv">Área equivalente <span class="opcional">(opc.)</span></label><div class="afixo sufixo"><input id="areaEquiv" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
         </div>
-        <div class="dupla">
+        <div class="dupla" id="gTipoPadrao">
           <div class="campo" id="cTipoProj"><label for="tipoProj">Tipo de projeto (NBR 12721)</label><select id="tipoProj"></select></div>
           <div class="campo" id="cPadrao"><label for="padrao">Padrão de acabamento</label><select id="padrao"><option value=""></option><option>BAIXO</option><option>NORMAL</option><option>ALTO</option></select></div>
         </div>
@@ -580,7 +620,7 @@
 
   // ---------- Montagem dos controles ----------
   $('tipos').innerHTML = TIPOS.map(function (t) { return '<label><input type="checkbox" name="tipo" value="' + t.id + '"> ' + esc(t.nome) + '</label>'; }).join('');
-  $('tipoProj').innerHTML = '<option value=""></option>' + TIPOS_NBR.map(function (t) { return '<option>' + t + '</option>'; }).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('#tipoProj, .selNbr'), function (s) { s.innerHTML = '<option value=""></option>' + TIPOS_NBR.map(function (t) { return '<option>' + t + '</option>'; }).join(''); });
   $('tabCriterios').innerHTML = '<tr><th>Critério</th><th>Baixo</th><th>Normal</th><th>Alto</th></tr>' +
     CRITERIOS.map(function (r) { return '<tr>' + r.map(function (c, i) { return i ? '<td>' + esc(c) + '</td>' : '<th>' + esc(c) + '</th>'; }).join('') + '</tr>'; }).join('');
   $('dataDoc').value = hojeISO();
@@ -616,6 +656,7 @@
   function docsSelecionados() {
     return Array.prototype.filter.call(document.querySelectorAll('input[name="doc"]'), function (c) { return c.checked; }).map(function (c) { return c.value; });
   }
+  function marcados(nome) { return Array.prototype.filter.call(document.querySelectorAll('input[name="' + nome + '"]'), function (c) { return c.checked; }).map(function (c) { return c.value; }); }
   function radio(nome) { var r = document.querySelector('input[name="' + nome + '"]:checked'); return r ? r.value : ''; }
 
   // ---------- Pessoas ----------
@@ -693,6 +734,7 @@
     var opcoes = TIPOS.map(function (o) {
       var txt = esc(o.nome);
       if (o.id === 'outro' && ids.indexOf('outro') >= 0 && outro) txt += ': ' + esc(outro);
+      if (o.id === 'parcelamento' && ids.indexOf('parcelamento') >= 0 && marcados('parc').length) txt += ': ' + esc(marcados('parc').join(' e '));
       return marca(ids.indexOf(o.id) >= 0, txt);
     }).join('');
     var rt = rtProjeto(), ass = [assProp()];
@@ -715,9 +757,27 @@
   function linhaRt(rot, rt) {
     return '<tr><td>' + rot + '</td><td><b>' + f(rt.nome) + '</b>' + f(rt.reg) + '</td><td>' + f(rt.end) + '</td><td style="white-space:nowrap">' + f(rt.fone) + '</td></tr>';
   }
+  var NOME_USO = { RESIDENCIAL: 'Residencial', COMERCIAL: 'Comercial', INDUSTRIAL: 'Industrial' };
+  function padraoDe(tipo, padrao) { return tipo.indexOf('GI ') === 0 ? 'GI' : padrao; }
+  function ehMisto() { return marcados('uso').length > 1; }
+  function areasD1(tipoProj, padrao) {
+    var amp = ehCombinada() ? itemD1('Área a regularizar', fUnid('areaReg', 'm²')) + itemD1('Área a ampliar', fUnid('areaAmp', 'm²')) : '';
+    var totais = itemD1('Área total construída', fUnid('areaTotal', 'm²')) + itemD1('Área equivalente', fUnid('areaEquiv', 'm²'));
+    if (ehMisto()) {
+      // Uso misto: cada uso com a sua área, tipo de projeto e padrão
+      var linhas = marcados('uso').map(function (u) {
+        var t = val('tipo' + u);
+        return '<tr><td>' + NOME_USO[u] + '</td><td style="white-space:nowrap">' + fUnid('area' + u, 'm²') + '</td><td>' + f(t) + '</td><td>' + f(padraoDe(t, val('padrao' + u))) + '</td></tr>';
+      }).join('');
+      return '<table class="rts" style="margin-bottom:2.5mm"><tr><th>Uso</th><th>Área</th><th>Tipo de projeto (NBR 12721)</th><th>Padrão de acabamento</th></tr>' + linhas + '</table>' +
+        '<div class="grade g4">' + amp + totais + '</div>';
+    }
+    var tipo = itemD1('Tipo de projeto (NBR 12721)', f(tipoProj)) + itemD1('Padrão de acabamento', f(padrao));
+    return '<div class="grade' + (amp ? '' : ' g4') + '">' + amp + totais + tipo + '</div>';
+  }
   function docD1() {
-    var p = prop(), rp = rtProjeto(), re = rtExecucao(), uso = radio('uso');
-    var usoHtml = ['RESIDENCIAL', 'COMERCIAL', 'INDUSTRIAL'].map(function (u) { return marca(u === uso, u.charAt(0) + u.slice(1).toLowerCase()); }).join('');
+    var p = prop(), rp = rtProjeto(), re = rtExecucao(), usos = marcados('uso');
+    var usoHtml = ['RESIDENCIAL', 'COMERCIAL', 'INDUSTRIAL'].map(function (u) { return marca(usos.indexOf(u) >= 0, u.charAt(0) + u.slice(1).toLowerCase()); }).join('');
     var tipoProj = val('tipoProj');
     var padrao = tipoProj.indexOf('GI ') === 0 ? 'GI' : val('padrao');
     var ass = [assProp(), assRt(rp, 'Responsável técnico – projeto')];
@@ -729,15 +789,10 @@
         : '<h4>Responsáveis técnicos</h4><table class="rts"><tr><th></th><th>Nome / CREA-CAU</th><th>Endereço</th><th>Telefone</th></tr>' + linhaRt('Projeto', rp) + linhaRt('Execução', re) + '</table>') +
       '<h4>Obra</h4><div class="grade g4">' + itemD1('Endereço da obra', f(logradouro('obra')), 'duplo') + itemD1('Bairro', f(val('obraBairro'))) + itemD1('Matrícula', f(val('obraMat'))) +
         itemD1('Quadra', f(val('quadra'))) + itemD1('Lote', f(val('lote'))) +
-        '<div class="item duplo"><small>Uso da edificação</small><div class="marcas" style="grid-template-columns:repeat(3,auto);margin:1mm 0 0;justify-content:start;gap:5mm">' + usoHtml + '</div></div></div>' +
+        '<div class="item duplo"><small>Uso da edificação' + (usos.length > 1 ? ' – misto' : '') + '</small><div class="marcas" style="grid-template-columns:repeat(3,auto);margin:1mm 0 0;justify-content:start;gap:5mm">' + usoHtml + '</div></div></div>' +
       '<h4>Índices urbanísticos</h4><div class="grade g5">' + itemD1('Área do terreno', fUnid('areaTerreno', 'm²')) + itemD1('Área construída', fUnid('areaConstr', 'm²')) +
         itemD1('Taxa de ocupação', fUnid('taxaOcup', '%')) + itemD1('Índice de aproveitamento', fUnid('indAprov')) + itemD1('Taxa de permeabilidade', fUnid('taxaPerm', '%')) + '</div>' +
-      (ehCombinada()
-        ? '<h4>Áreas construídas e padrão da construção</h4><div class="grade">' + itemD1('Área a regularizar', fUnid('areaReg', 'm²')) + itemD1('Área a ampliar', fUnid('areaAmp', 'm²')) +
-          itemD1('Área total construída', fUnid('areaTotal', 'm²')) + itemD1('Área equivalente', fUnid('areaEquiv', 'm²')) +
-          itemD1('Tipo de projeto (NBR 12721)', f(tipoProj)) + itemD1('Padrão de acabamento', f(padrao)) + '</div>'
-        : '<h4>Áreas construídas e padrão da construção</h4><div class="grade g4">' + itemD1('Área total construída', fUnid('areaTotal', 'm²')) + itemD1('Área equivalente', fUnid('areaEquiv', 'm²')) +
-          itemD1('Tipo de projeto (NBR 12721)', f(tipoProj)) + itemD1('Padrão de acabamento', f(padrao)) + '</div>') +
+      '<h4>Áreas construídas e padrão da construção</h4>' + areasD1(tipoProj, padrao) +
       '<div class="empurra"></div>' + assinaturas(ass), 'compacto');
   }
 
@@ -782,7 +837,8 @@
   function docChk() { return checklistsSelecionados().map(paginaChk).join(''); }
   function paginaChk(chave) {
     var c = CHECKLISTS[chave];
-    var h = cabecalho('Relação de documentos para protocolo', c.titulo, c.sub, 'Departamento de Engenharia · ' + REVISAO) + '<div class="chk' + (c.compacto ? ' compacto' : '') + '">';
+    var sub = c.sub + (chave === 'parcelamento' && marcados('parc').length ? ' – ' + marcados('parc').join(' e ') : '');
+    var h = cabecalho('Relação de documentos para protocolo', c.titulo, sub, 'Departamento de Engenharia · ' + REVISAO) + '<div class="chk' + (c.compacto ? ' compacto' : '') + '">';
     var p = prop();
     if (p.nome || endereco('obra')) h += '<div class="dados" style="margin-top:4mm;font-size:9.5pt"><div><b>Requerente:</b> ' + f(p.nome) + '</div><div><b>Endereço da obra:</b> ' + f(endereco('obra')) + '</div></div>';
     c.grupos.forEach(function (g) {
@@ -815,10 +871,27 @@
 
     $('cOutro').hidden = !temTipo('outro');
     // Regularização + ampliação: área total = existente a regularizar + a ampliar
+    $('cParc').hidden = !temTipo('parcelamento');
     var combinada = tem('d1') && ehCombinada();
+    var usos = marcados('uso'), misto = tem('d1') && usos.length > 1;
     $('gAmpliacao').hidden = !combinada;
-    $('areaTotal').readOnly = combinada;
-    if (combinada) { var soma = lerNumero(val('areaReg')) + lerNumero(val('areaAmp')); $('areaTotal').value = soma ? num(soma) : ''; }
+    // Uso misto: área, tipo e padrão por uso; a área total é a soma das áreas dos usos
+    $('gUsos').hidden = !misto;
+    $('gTipoPadrao').hidden = misto;
+    Array.prototype.forEach.call(document.querySelectorAll('.uso-bloco'), function (b) {
+      var u = b.getAttribute('data-uso'), gi = val('tipo' + u).indexOf('GI ') === 0;
+      b.hidden = usos.indexOf(u) < 0;
+      $('padrao' + u).disabled = gi;
+      if (gi) $('padrao' + u).value = '';
+    });
+    $('areaTotal').readOnly = combinada || misto;
+    var somaUsos = usos.reduce(function (a, u) { return a + lerNumero(val('area' + u)); }, 0);
+    var somaAmp = lerNumero(val('areaReg')) + lerNumero(val('areaAmp'));
+    if (misto) $('areaTotal').value = somaUsos ? num(somaUsos) : '';
+    else if (combinada) $('areaTotal').value = somaAmp ? num(somaAmp) : '';
+    var difere = misto && combinada && somaUsos && somaAmp && Math.abs(somaUsos - somaAmp) > 0.005;
+    $('dicaTotal').textContent = difere ? 'Atenção: regularizar + ampliar soma ' + num(somaAmp) + ' m², diferente da soma dos usos.' : misto ? 'Soma das áreas de cada uso.' : combinada ? 'Área a regularizar + área a ampliar.' : '';
+    $('dicaTotal').style.color = difere ? 'var(--erro)' : '';
     $('cEscopo').hidden = !tem('tc');
     $('sD1').hidden = !tem('d1');
     $('gLote').hidden = !tem('d1');
@@ -854,6 +927,7 @@
     exigir('cTipo', ts.length > 0, 'tipo de solicitação');
     if (!ts.length) return faltam;
     if (!docs.length) { faltam.push('ao menos um documento'); return faltam; }
+    if (temTipo('parcelamento')) exigir('cParc', marcados('parc').length > 0, 'desmembramento e/ou unificação');
     if (temTipo('outro')) exigir('cOutro', val('outroDesc'), 'descrição da solicitação');
 
     var soChecklist = docs.length === 1 && tem('chk');
@@ -882,14 +956,26 @@
       }
     }
     if (tem('d1')) {
-      exigir('cUso', radio('uso'), 'uso da edificação');
+      exigir('cUso', marcados('uso').length > 0, 'uso da edificação');
       exigir('cAreaTerreno', val('areaTerreno'), 'área do terreno');
       if (ehCombinada()) {
         exigir('cAreaReg', val('areaReg'), 'área a regularizar');
         exigir('cAreaAmp', val('areaAmp'), 'área a ampliar');
       } else exigir('cAreaTotal', val('areaTotal'), 'área total construída');
-      exigir('cTipoProj', val('tipoProj'), 'tipo de projeto');
-      if (!$('padrao').disabled) exigir('cPadrao', val('padrao'), 'padrão de acabamento');
+      if (ehMisto()) {
+        marcados('uso').forEach(function (u) {
+          var n = NOME_USO[u].toLowerCase();
+          exigir('cArea' + u, val('area' + u), 'área ' + n);
+          exigir('cTipo' + u, val('tipo' + u), 'tipo de projeto ' + n);
+          if (!$('padrao' + u).disabled) exigir('cPadrao' + u, val('padrao' + u), 'padrão ' + n);
+        });
+        if (ehCombinada() && Math.abs(lerNumero(val('areaReg')) + lerNumero(val('areaAmp')) - lerNumero(val('areaTotal'))) > 0.005) {
+          $('cAreaTotal').classList.add('invalido'); faltam.push('áreas a regularizar + ampliar somando a área total');
+        }
+      } else {
+        exigir('cTipoProj', val('tipoProj'), 'tipo de projeto');
+        if (!$('padrao').disabled) exigir('cPadrao', val('padrao'), 'padrão de acabamento');
+      }
     }
     if (tem('tc5')) exigir('cAlvara', val('alvara'), 'nº do alvará');
     if (tem('dec1')) exigir('cSistema', radio('sistema'), 'sistema de tratamento');
