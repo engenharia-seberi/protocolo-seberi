@@ -91,6 +91,13 @@
   .uso-bloco { border: 1px solid var(--linha); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
   .uso-tit { font-size: 13px; font-weight: 700; color: var(--verde); margin-bottom: 8px; }
   .opcoes.duas { grid-template-columns: 1fr 1fr; }
+  .linha-mat { display: grid; grid-template-columns: 1fr 1fr 40px; gap: 12px; align-items: end; margin-bottom: 10px; }
+  .linha-mat .campo { margin-bottom: 0; }
+  #dicaMat { font-size: 12.5px; font-weight: 600; color: var(--verde); margin-top: 8px; }
+  .linha-mat .remover { height: 40px; font: inherit; font-size: 20px; line-height: 1; color: var(--suave); background: #fff; border: 1px solid #b9c4bd; border-radius: 8px; cursor: pointer; }
+  .linha-mat .remover:hover { color: var(--erro); border-color: var(--erro); }
+  .linha-mat .remover:disabled { visibility: hidden; }
+  .botao-add { height: 36px; padding: 0 14px; font: inherit; font-size: 13.5px; font-weight: 600; color: var(--verde); background: #fff; border: 1px dashed var(--verde); border-radius: 8px; cursor: pointer; }
   .criterios { margin-top: 8px; font-size: 13px; }
   .criterios summary { cursor: pointer; color: var(--verde); font-weight: 600; }
   .criterios .tab { overflow-x: auto; margin-top: 8px; }
@@ -115,12 +122,16 @@
   .previa .vazio { padding: 40px 16px; text-align: center; color: var(--suave); }
 
   /* documento – modelo moderno */
-  .pagina { width: 210mm; height: 297mm; background: #fff; overflow: hidden; }
+  .pagina { width: 210mm; min-height: 297mm; background: #fff; }
   .pagina table { width: 100%; border-collapse: collapse; }
   .pagina.moderno { padding: 0; display: flex; flex-direction: column; font-family: "Segoe UI", Arial, Helvetica, sans-serif; font-size: 10.5pt; line-height: 1.4; color: #1c2b22; }
   .moderno .faixa, .moderno .caixa.x { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .moderno .folha { flex: 1; }
+  .moderno .folha > * > tr > td { padding: 0; vertical-align: top; }
+  .moderno .esp-topo, .moderno .esp-rodape { height: 0; }
+  #rodapeImpressao { display: none; }
   .moderno .faixa { height: 5mm; flex: none; background: linear-gradient(90deg, #1f6b3b 0 72%, #22a455 72% 100%); }
-  .moderno .miolo { flex: 1; padding: 9mm 18mm 0; display: flex; flex-direction: column; min-height: 0; }
+  .moderno .miolo { padding: 9mm 18mm 6mm; }
   .moderno .topo { display: flex; align-items: center; justify-content: space-between; gap: 8mm; padding-bottom: 5mm; border-bottom: 1.5pt solid #1f6b3b; }
   .moderno .topo img { width: 52mm; height: auto; }
   .moderno .titulo { text-align: right; }
@@ -139,7 +150,9 @@
   .moderno .item strong { display: block; font-size: 11pt; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-height: 5mm; }
   .moderno .item > span { display: block; font-size: 8pt; color: #5f6f66; }
   .moderno .texto { margin-top: 6mm; }
-  .moderno .texto p { margin: 0 0 3.5mm; text-align: justify; hyphens: auto; }
+  .moderno .texto p { margin: 0 0 3.5mm; text-align: justify; hyphens: none; -webkit-hyphens: none; }
+  .moderno .titulo-doc { margin: 8mm 0 2mm; text-align: center; font-size: 13pt; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; line-height: 1.25; }
+  .moderno .titulo-doc span { display: block; font-size: 10.5pt; color: #1f6b3b; letter-spacing: .08em; margin-top: .8mm; }
   .moderno .saudacao { margin: 7mm 0 5mm; font-weight: 700; letter-spacing: .04em; }
   .moderno .leis { margin: 0 0 3.5mm; padding-left: 6mm; }
   .moderno .leis li { margin-bottom: .8mm; }
@@ -156,8 +169,11 @@
   .moderno .dados div b { display: inline-block; min-width: 34mm; }
   .moderno .empurra { flex: 1; min-height: 4mm; }
   .moderno .local-data { text-align: right; margin: 6mm 0 0; }
-  .moderno .assinaturas { display: grid; grid-template-columns: 1fr 1fr; gap: 12mm 14mm; margin: 16mm 0 10mm; }
-  .moderno .assinaturas.tres { grid-template-columns: repeat(3, 1fr); gap: 8mm; margin: 12mm 0 8mm; }
+  .moderno .bloco-ass, .moderno .item, .moderno .rts tr, .moderno .marca, .moderno .titulo-doc, .moderno .dados > div { break-inside: avoid; page-break-inside: avoid; }
+  .moderno h4, .moderno .titulo-doc { break-after: avoid; page-break-after: avoid; }
+  /* espaço em branco acima de cada linha para o carimbo da assinatura digital (gov.br/ICP) */
+  .moderno .assinaturas { display: grid; grid-template-columns: 1fr 1fr; gap: 30mm 14mm; margin: 28mm 0 4mm; }
+  .moderno .assinaturas.tres { grid-template-columns: repeat(3, 1fr); gap: 30mm 8mm; }
   .moderno .rts th { text-align: left; font-size: 6.5pt; letter-spacing: .08em; text-transform: uppercase; color: #5f6f66; font-weight: 600; padding: 0 2mm 1.2mm; border-bottom: .75pt solid #1c2b22; }
   .moderno .rts td { padding: 2mm; border-bottom: .75pt solid #cfd8d2; font-size: 9.5pt; vertical-align: top; overflow-wrap: anywhere; }
   .moderno .rts td:first-child { font-size: 7pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #1f6b3b; white-space: nowrap; }
@@ -168,11 +184,6 @@
   .moderno .ass b { display: block; font-size: 9.5pt; text-transform: uppercase; }
   .moderno .ass small { display: block; font-size: 6.5pt; letter-spacing: .1em; text-transform: uppercase; color: #1f6b3b; font-weight: 700; margin-bottom: .5mm; }
   .moderno .ass.centro { grid-column: 1 / -1; width: 50%; justify-self: center; }
-  .moderno.compacto h4 { margin: 3mm 0 1.5mm; }
-  .moderno.compacto .item { padding: 1.5mm 3mm; }
-  .moderno.compacto .rts td { padding: 1.4mm 2mm; }
-  .moderno.compacto .local-data { margin-top: 4mm; }
-  .moderno.compacto .assinaturas { margin: 10mm 0 5mm; }
   .moderno .rodape { margin: 0 18mm; padding: 3mm 0 9mm; border-top: .75pt solid #cfd8d2; display: flex; justify-content: space-between; gap: 8mm; font-size: 7.5pt; line-height: 1.4; color: #5f6f66; flex: none; }
   .moderno .rodape div:last-child { text-align: right; }
   /* checklist */
@@ -196,7 +207,13 @@
     main { display: block; padding: 0; max-width: none; }
     .previa { border: 0; padding: 0; box-shadow: none; border-radius: 0; }
     .previa .rolagem { display: block !important; overflow: visible; margin: 0; padding: 0; background: none; }
-    .previa .pagina { box-shadow: none; margin: 0; zoom: 1 !important; height: 296mm; break-after: page; page-break-after: always; }
+    .previa .pagina { box-shadow: none; margin: 0; zoom: 1 !important; min-height: 0; display: block; break-after: page; page-break-after: always; }
+    /* cabeçalho (faixa) e espaço do rodapé se repetem em cada página; o rodapé fica fixo no pé de todas as folhas */
+    .previa .pagina .rodape { display: none; }
+    .moderno .esp-topo { height: 7mm; }
+    .moderno .esp-rodape { height: 24mm; }
+    .moderno .miolo { padding-top: 2mm; }
+    #rodapeImpressao { display: block; position: fixed; left: 0; bottom: 0; width: 210mm; background: #fff; }
     .previa .pagina:last-child { break-after: auto; page-break-after: auto; }
   }
 </style>
@@ -226,7 +243,7 @@
         <label>Parcelamento de solo (exceto loteamento)</label>
         <div class="opcoes duas">
           <label><input type="checkbox" name="parc" value="Desmembramento"> Desmembramento</label>
-          <label><input type="checkbox" name="parc" value="Unificação"> Unificação</label>
+          <label><input type="checkbox" name="parc" value="Unificação (remembramento)"> Unificação (remembramento)</label>
         </div>
       </div>
       <div class="campo" id="cOutro" hidden>
@@ -327,6 +344,12 @@
           <div class="campo" id="cObraMat"><label for="obraMat">Matrícula do lote</label><input id="obraMat" maxlength="30"></div>
           <div class="campo" id="cAlvara" hidden><label for="alvara">Alvará de construção nº</label><input id="alvara" maxlength="30"></div>
         </div>
+        <div id="gMatriculas" hidden>
+          <div class="subrot">Matrículas a unificar (remembramento)</div>
+          <div id="listaMat"></div>
+          <button type="button" class="botao-add" id="btnAddMat">+ Adicionar matrícula</button>
+          <div class="dica" id="dicaMat"></div>
+        </div>
         <div class="dupla" id="gLote" hidden>
           <div class="campo"><label for="quadra">Quadra <span class="opcional">(opc.)</span></label><input id="quadra" maxlength="15"></div>
           <div class="campo"><label for="lote">Lote <span class="opcional">(opc.)</span></label><input id="lote" maxlength="15"></div>
@@ -363,6 +386,10 @@
               <div class="campo" id="cAreaRESIDENCIAL"><label for="areaRESIDENCIAL">Área</label><div class="afixo sufixo"><input id="areaRESIDENCIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
               <div class="campo" id="cPadraoRESIDENCIAL"><label for="padraoRESIDENCIAL">Padrão de acabamento</label><select id="padraoRESIDENCIAL"><option value=""></option><option>BAIXO</option><option>NORMAL</option><option>ALTO</option></select></div>
             </div>
+            <div class="dupla uso-amp" hidden>
+              <div class="campo" id="cAreaRegRESIDENCIAL"><label for="areaRegRESIDENCIAL">A regularizar</label><div class="afixo sufixo"><input id="areaRegRESIDENCIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+              <div class="campo" id="cAreaAmpRESIDENCIAL"><label for="areaAmpRESIDENCIAL">A ampliar</label><div class="afixo sufixo"><input id="areaAmpRESIDENCIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+            </div>
           </div>
           <div class="uso-bloco" data-uso="COMERCIAL" hidden>
             <div class="uso-tit">Uso comercial</div>
@@ -371,6 +398,10 @@
               <div class="campo" id="cAreaCOMERCIAL"><label for="areaCOMERCIAL">Área</label><div class="afixo sufixo"><input id="areaCOMERCIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
               <div class="campo" id="cPadraoCOMERCIAL"><label for="padraoCOMERCIAL">Padrão de acabamento</label><select id="padraoCOMERCIAL"><option value=""></option><option>BAIXO</option><option>NORMAL</option><option>ALTO</option></select></div>
             </div>
+            <div class="dupla uso-amp" hidden>
+              <div class="campo" id="cAreaRegCOMERCIAL"><label for="areaRegCOMERCIAL">A regularizar</label><div class="afixo sufixo"><input id="areaRegCOMERCIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+              <div class="campo" id="cAreaAmpCOMERCIAL"><label for="areaAmpCOMERCIAL">A ampliar</label><div class="afixo sufixo"><input id="areaAmpCOMERCIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+            </div>
           </div>
           <div class="uso-bloco" data-uso="INDUSTRIAL" hidden>
             <div class="uso-tit">Uso industrial</div>
@@ -378,6 +409,10 @@
             <div class="dupla">
               <div class="campo" id="cAreaINDUSTRIAL"><label for="areaINDUSTRIAL">Área</label><div class="afixo sufixo"><input id="areaINDUSTRIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
               <div class="campo" id="cPadraoINDUSTRIAL"><label for="padraoINDUSTRIAL">Padrão de acabamento</label><select id="padraoINDUSTRIAL"><option value=""></option><option>BAIXO</option><option>NORMAL</option><option>ALTO</option></select></div>
+            </div>
+            <div class="dupla uso-amp" hidden>
+              <div class="campo" id="cAreaRegINDUSTRIAL"><label for="areaRegINDUSTRIAL">A regularizar</label><div class="afixo sufixo"><input id="areaRegINDUSTRIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
+              <div class="campo" id="cAreaAmpINDUSTRIAL"><label for="areaAmpINDUSTRIAL">A ampliar</label><div class="afixo sufixo"><input id="areaAmpINDUSTRIAL" inputmode="numeric" data-mascara="num" data-digitos="9"><span>m²</span></div></div>
             </div>
           </div>
         </div>
@@ -428,6 +463,8 @@
     <div class="rolagem" id="rolagem"></div>
   </details>
 </main>
+
+<div id="rodapeImpressao" class="moderno"><div class="rodape"><div><b>Prefeitura Municipal de Seberi</b> · Estado do Rio Grande do Sul<br>Secretaria Municipal de Desenvolvimento – Departamento de Engenharia</div><div>Avenida General Flores da Cunha, 831 – Centro – CEP 98380-000<br>Fones: 55.3746.1122 e 55.3746.1127 · www.pmseberi.com.br</div></div></div>
 
 <script>
 (function () {
@@ -554,7 +591,7 @@
         'Serão aprovados parcelamentos de solo (exceto loteamento) apenas em áreas com infraestrutura existente;', LEI_PARCELAMENTO]
     },
     loteamento: {
-      titulo: 'Parcelamento de Solo Urbano', sub: 'Loteamentos', compacto: true,
+      titulo: 'Parcelamento de Solo Urbano', sub: 'Loteamentos',
       grupos: [
         { t: 'Fase 01 – Análise prévia (1 via)', itens: ['Requerimento Padrão', 'Matrícula Atualizada da Área (Validade 90 dias)', 'Projeto Urbanístico', 'Quadro de Áreas', 'Licença Ambiental Prévia (LAP)', 'Levantamento Planialtimétrico'] },
         { t: 'Fase 02 – Análise complementar (3 vias)', itens: ['Requerimento Padrão', 'Matrícula Atualizada da Área (Validade 90 dias)', 'Projeto Urbanístico (Aprovado na Fase 01)', 'Planta de Situação da Gleba',
@@ -682,16 +719,22 @@
   function prop() { return { nome: val('propNome'), doc: val('propDoc'), end: endereco('prop'), fone: val('propFone') }; }
 
   // ---------- Peças do documento ----------
-  function cabecalho(rot, nome, sub, cod) {
-    return '<div class="faixa"></div><div class="miolo"><div class="topo"><img src="assets/logo-seberi.png" alt="">' +
+  // corpo: título repetido no início do texto ([linha principal, subtítulo]); padrão = nome e sub do cabeçalho
+  function cabecalho(rot, nome, sub, cod, corpo) {
+    corpo = corpo || [nome, sub];
+    return '<div class="miolo"><div class="topo"><img src="assets/logo-seberi.png" alt="">' +
       '<div class="titulo"><div class="rot">' + rot + '</div><div class="nome">' + nome + '</div>' +
-      (sub ? '<div class="sub">' + sub + '</div>' : '') + '<div class="cod">' + cod + '</div></div></div>';
+      (sub ? '<div class="sub">' + sub + '</div>' : '') + '<div class="cod">' + cod + '</div></div></div>' +
+      '<div class="titulo-doc">' + corpo[0] + (corpo[1] ? '<span>' + corpo[1] + '</span>' : '') + '</div>';
   }
-  function rodape() {
-    return '</div><div class="rodape"><div><b>Prefeitura Municipal de Seberi</b> · Estado do Rio Grande do Sul<br>Secretaria Municipal de Desenvolvimento – Departamento de Engenharia</div>' +
-      '<div>Avenida General Flores da Cunha, 831 – Centro – CEP 98380-000<br>Fones: 55.3746.1122 e 55.3746.1127 · www.pmseberi.com.br</div></div>';
+  var RODAPE = $('rodapeImpressao').innerHTML;
+  // A tabela repete a faixa (thead) e o espaço do rodapé (tfoot) em cada página quando o documento passa de uma folha
+  function pagina(id, html) {
+    return '<div class="pagina moderno" data-doc="' + id + '"><table class="folha">' +
+      '<thead><tr><td><div class="faixa"></div><div class="esp-topo"></div></td></tr></thead>' +
+      '<tfoot><tr><td><div class="esp-rodape"></div></td></tr></tfoot>' +
+      '<tbody><tr><td>' + html + '</div></td></tr></tbody></table>' + RODAPE + '</div>';
   }
-  function pagina(id, html, cls) { return '<div class="pagina moderno' + (cls ? ' ' + cls : '') + '" data-doc="' + id + '">' + html + rodape() + '</div>'; }
   function marca(ok, texto) { return '<div class="marca' + (ok ? ' x' : '') + '"><span class="caixa' + (ok ? ' x' : '') + '"></span><span>' + texto + '</span></div>'; }
   function leis() { return '<ul class="leis">' + LEIS.map(function (l) { return '<li>' + l + '</li>'; }).join('') + '</ul>'; }
 
@@ -707,13 +750,34 @@
       var centro = itens.length === 1 ? ' centro' : '';
       return '<div class="ass' + centro + '"><small>' + esc(a.papel) + '</small><b>' + (a.nome ? esc(a.nome) : '&nbsp;') + '</b>' + esc(a.linha) + '</div>';
     }).join('');
-    return '<div class="local-data">' + dataExtenso() + '</div><div class="assinaturas' + (itens.length > 2 ? ' tres' : '') + '">' + html + '</div>';
+    return '<div class="bloco-ass"><div class="local-data">' + dataExtenso() + '</div><div class="assinaturas' + (itens.length > 2 ? ' tres' : '') + '">' + html + '</div></div>';
   }
   function assProp() { var p = prop(); return { papel: 'Proprietário', nome: p.nome, linha: 'CPF/CNPJ: ' + (p.doc || '') }; }
   function assRt(rt, papel) { return { papel: papel, nome: rt.nome, linha: 'CREA/CAU: ' + (rt.reg || '') }; }
 
+  // Unificação (remembramento): várias matrículas, cada uma com a sua área
+  function ehUnificacao() { return temTipo('parcelamento') && marcados('parc').some(function (v) { return v.indexOf('Unificação') === 0; }); }
+  function linhasMat() { return Array.prototype.slice.call(document.querySelectorAll('#listaMat .linha-mat')); }
+  function matriculas() { return linhasMat().map(function (l) { return { n: l.querySelector('.matN').value.trim(), a: l.querySelector('.matA').value.trim() }; }); }
+  function somaMatriculas() { return matriculas().reduce(function (t, m) { return t + lerNumero(m.a); }, 0); }
+  function textoMatriculas() { return matriculas().map(function (m) { return f(m.n) + (m.a ? ' (' + esc(m.a) + ' m²)' : ''); }).join('; '); }
+  function addMatricula() {
+    var l = document.createElement('div');
+    l.className = 'linha-mat';
+    l.innerHTML = '<div class="campo"><label>Matrícula nº</label><input class="matN" maxlength="30"></div>' +
+      '<div class="campo"><label>Área</label><div class="afixo sufixo"><input class="matA" inputmode="numeric" data-digitos="9"><span>m²</span></div></div>' +
+      '<button type="button" class="remover" title="Remover matrícula">×</button>';
+    l.querySelector('.matA').addEventListener('input', function () { mascarar(this); });
+    l.querySelector('.remover').addEventListener('click', function () { l.remove(); atualizar(); });
+    $('listaMat').appendChild(l);
+  }
+  function reiniciarMatriculas() { $('listaMat').innerHTML = ''; addMatricula(); addMatricula(); }
+  function matriculaObra() { return ehUnificacao() ? textoMatriculas() : f(val('obraMat')); }
   function dadosObra(arts) {
-    var h = '<div class="dados"><div><b>Endereço da obra:</b> ' + f(endereco('obra')) + '</div><div><b>Matrícula do lote:</b> ' + f(val('obraMat')) + '</div>';
+    var h = '<div class="dados"><div><b>Endereço da obra:</b> ' + f(endereco('obra')) + '</div>' +
+      (ehUnificacao()
+        ? '<div><b>Matrículas a unificar:</b> ' + textoMatriculas() + '</div><div><b>Área total:</b> ' + (somaMatriculas() ? num(somaMatriculas()) + ' m²' : f('')) + '</div>'
+        : '<div><b>Matrícula do lote:</b> ' + f(val('obraMat')) + '</div>');
     arts.forEach(function (a) { h += '<div><b>' + a.rot + ':</b> ' + f(a.v) + '</div>'; });
     return h + '</div>';
   }
@@ -739,7 +803,7 @@
     }).join('');
     var rt = rtProjeto(), ass = [assProp()];
     if (rt.nome) ass.push(assRt(rt, 'Responsável técnico'));
-    return pagina('req', cabecalho('Secretaria Municipal de Desenvolvimento', 'Requerimento', 'Padrão', 'REQ-1 · ' + REVISAO) +
+    return pagina('req', cabecalho('Secretaria Municipal de Desenvolvimento', 'Requerimento', 'Padrão', 'REQ-1 · ' + REVISAO, ['Requerimento']) +
       '<div class="texto"><p class="saudacao">ILUSTRÍSSIMO SR. PREFEITO MUNICIPAL DE SEBERI</p>' +
       '<p>Eu, <b>' + f(p.nome) + '</b>, inscrito(a) no CPF/CNPJ nº ' + f(p.doc) + ', residente à ' + f(p.end) +
       (p.fone ? ', telefone ' + esc(p.fone) : '') + ', venho através deste solicitar que Vossa Senhoria se digne a autorizar:</p></div>' +
@@ -765,11 +829,16 @@
     var totais = itemD1('Área total construída', fUnid('areaTotal', 'm²')) + itemD1('Área equivalente', fUnid('areaEquiv', 'm²'));
     if (ehMisto()) {
       // Uso misto: cada uso com a sua área, tipo de projeto e padrão
+      // Com regularização + ampliação, cada uso mostra também quanto é a regularizar e quanto é a ampliar
+      var porUso = ehCombinada(), nw = '<td style="white-space:nowrap">';
       var linhas = marcados('uso').map(function (u) {
         var t = val('tipo' + u);
-        return '<tr><td>' + NOME_USO[u] + '</td><td style="white-space:nowrap">' + fUnid('area' + u, 'm²') + '</td><td>' + f(t) + '</td><td>' + f(padraoDe(t, val('padrao' + u))) + '</td></tr>';
+        var ou = function (id) { return val(id) ? esc(val(id)) + ' m²' : '—'; };
+        return '<tr><td>' + NOME_USO[u] + '</td>' + (porUso ? nw + ou('areaReg' + u) + '</td>' + nw + ou('areaAmp' + u) + '</td>' : '') +
+          nw + fUnid('area' + u, 'm²') + '</td><td>' + f(t) + '</td><td>' + f(padraoDe(t, val('padrao' + u))) + '</td></tr>';
       }).join('');
-      return '<table class="rts" style="margin-bottom:2.5mm"><tr><th>Uso</th><th>Área</th><th>Tipo de projeto (NBR 12721)</th><th>Padrão de acabamento</th></tr>' + linhas + '</table>' +
+      return '<table class="rts" style="margin-bottom:2.5mm"><tr><th>Uso</th>' + (porUso ? '<th>A regularizar</th><th>A ampliar</th><th>Total</th>' : '<th>Área</th>') +
+        '<th>Tipo de projeto (NBR 12721)</th><th>Padrão</th></tr>' + linhas + '</table>' +
         '<div class="grade g4">' + amp + totais + '</div>';
     }
     var tipo = itemD1('Tipo de projeto (NBR 12721)', f(tipoProj)) + itemD1('Padrão de acabamento', f(padrao));
@@ -782,18 +851,18 @@
     var padrao = tipoProj.indexOf('GI ') === 0 ? 'GI' : val('padrao');
     var ass = [assProp(), assRt(rp, 'Responsável técnico – projeto')];
     if (!$('mesmoRt').checked) ass.push(assRt(re, 'Responsável técnico – execução'));
-    return pagina('d1', cabecalho('Secretaria Municipal de Desenvolvimento', 'Dados para Aprovação', 'de projeto de construção', 'D-1 · ' + REVISAO) +
+    return pagina('d1', cabecalho('Secretaria Municipal de Desenvolvimento', 'Dados para Aprovação', 'de projeto de construção', 'D-1 · ' + REVISAO, ['Dados para aprovação de projeto de construção']) +
       '<h4>Proprietário</h4><div class="grade">' + itemD1('Proprietário', f(p.nome), 'duplo') + itemD1('CPF/CNPJ', f(p.doc)) +
         itemD1('Endereço do proprietário', f(p.end), 'duplo') + itemD1('Telefone', f(p.fone)) + '</div>' +
       ($('mesmoRt').checked ? '<h4>Responsável técnico – projeto e execução</h4><div class="grade">' + blocoRt(rp) + '</div>'
-        : '<h4>Responsáveis técnicos</h4><table class="rts"><tr><th></th><th>Nome / CREA-CAU</th><th>Endereço</th><th>Telefone</th></tr>' + linhaRt('Projeto', rp) + linhaRt('Execução', re) + '</table>') +
-      '<h4>Obra</h4><div class="grade g4">' + itemD1('Endereço da obra', f(logradouro('obra')), 'duplo') + itemD1('Bairro', f(val('obraBairro'))) + itemD1('Matrícula', f(val('obraMat'))) +
+        : '<h4>Responsáveis técnicos</h4><table class="rts"><tr><th style="width:13%"></th><th style="width:34%">Nome / CREA-CAU</th><th>Endereço</th><th style="width:20%">Telefone</th></tr>' + linhaRt('Projeto', rp) + linhaRt('Execução', re) + '</table>') +
+      '<h4>Obra</h4><div class="grade g4">' + itemD1('Endereço da obra', f(logradouro('obra')), 'duplo') + itemD1('Bairro', f(val('obraBairro'))) + itemD1('Matrícula', matriculaObra()) +
         itemD1('Quadra', f(val('quadra'))) + itemD1('Lote', f(val('lote'))) +
         '<div class="item duplo"><small>Uso da edificação' + (usos.length > 1 ? ' – misto' : '') + '</small><div class="marcas" style="grid-template-columns:repeat(3,auto);margin:1mm 0 0;justify-content:start;gap:5mm">' + usoHtml + '</div></div></div>' +
       '<h4>Índices urbanísticos</h4><div class="grade g5">' + itemD1('Área do terreno', fUnid('areaTerreno', 'm²')) + itemD1('Área construída', fUnid('areaConstr', 'm²')) +
         itemD1('Taxa de ocupação', fUnid('taxaOcup', '%')) + itemD1('Índice de aproveitamento', fUnid('indAprov')) + itemD1('Taxa de permeabilidade', fUnid('taxaPerm', '%')) + '</div>' +
       '<h4>Áreas construídas e padrão da construção</h4>' + areasD1(tipoProj, padrao) +
-      '<div class="empurra"></div>' + assinaturas(ass), 'compacto');
+      '<div class="empurra"></div>' + assinaturas(ass));
   }
 
   function docTermo(id, cod, sub, paragrafos, leisTxt, ass, arts, extraAntes) {
@@ -838,7 +907,7 @@
   function paginaChk(chave) {
     var c = CHECKLISTS[chave];
     var sub = c.sub + (chave === 'parcelamento' && marcados('parc').length ? ' – ' + marcados('parc').join(' e ') : '');
-    var h = cabecalho('Relação de documentos para protocolo', c.titulo, sub, 'Departamento de Engenharia · ' + REVISAO) + '<div class="chk' + (c.compacto ? ' compacto' : '') + '">';
+    var h = cabecalho('Relação de documentos para protocolo', c.titulo, sub, 'Departamento de Engenharia · ' + REVISAO, ['Relação de documentos para protocolo', c.titulo + (sub ? ' – ' + sub : '')]) + '<div class="chk' + (c.compacto ? ' compacto' : '') + '">';
     var p = prop();
     if (p.nome || endereco('obra')) h += '<div class="dados" style="margin-top:4mm;font-size:9.5pt"><div><b>Requerente:</b> ' + f(p.nome) + '</div><div><b>Endereço da obra:</b> ' + f(endereco('obra')) + '</div></div>';
     c.grupos.forEach(function (g) {
@@ -854,11 +923,6 @@
 
   // ---------- Atualização da tela ----------
   var previa = $('previa');
-  function excedeFolha(p) {
-    var z = p.style.zoom; p.style.zoom = 1;
-    var m = p.querySelector('.miolo'), excede = m.scrollHeight > m.clientHeight + 1 || p.scrollHeight > 1124;
-    p.style.zoom = z; return excede;
-  }
   function ajustarPrevia() {
     var largura = $('rolagem').clientWidth - 32;
     if (largura > 0) Array.prototype.forEach.call(document.querySelectorAll('.previa .pagina'), function (p) { p.style.zoom = Math.min(1, largura / 794); });
@@ -872,6 +936,11 @@
     $('cOutro').hidden = !temTipo('outro');
     // Regularização + ampliação: área total = existente a regularizar + a ampliar
     $('cParc').hidden = !temTipo('parcelamento');
+    var unif = ehUnificacao();
+    $('gMatriculas').hidden = !unif;
+    $('cObraMat').hidden = unif;
+    linhasMat().forEach(function (l) { l.querySelector('.remover').disabled = linhasMat().length <= 2; });
+    $('dicaMat').textContent = unif && somaMatriculas() ? 'Área total: ' + num(somaMatriculas()) + ' m²' : '';
     var combinada = tem('d1') && ehCombinada();
     var usos = marcados('uso'), misto = tem('d1') && usos.length > 1;
     $('gAmpliacao').hidden = !combinada;
@@ -881,17 +950,26 @@
     Array.prototype.forEach.call(document.querySelectorAll('.uso-bloco'), function (b) {
       var u = b.getAttribute('data-uso'), gi = val('tipo' + u).indexOf('GI ') === 0;
       b.hidden = usos.indexOf(u) < 0;
+      b.querySelector('.uso-amp').hidden = !(misto && combinada);
+      $('area' + u).readOnly = misto && combinada;
+      if (misto && combinada) { var su = lerNumero(val('areaReg' + u)) + lerNumero(val('areaAmp' + u)); $('area' + u).value = su ? num(su) : ''; }
       $('padrao' + u).disabled = gi;
       if (gi) $('padrao' + u).value = '';
     });
     $('areaTotal').readOnly = combinada || misto;
+    // Uso misto + regularização/ampliação: os totais a regularizar e a ampliar vêm da soma por uso
+    var porUso = misto && combinada;
+    $('areaReg').readOnly = $('areaAmp').readOnly = porUso;
+    if (porUso) {
+      var soma = function (pref) { var t = usos.reduce(function (a, u) { return a + lerNumero(val(pref + u)); }, 0); return t ? num(t) : ''; };
+      $('areaReg').value = soma('areaReg');
+      $('areaAmp').value = soma('areaAmp');
+    }
     var somaUsos = usos.reduce(function (a, u) { return a + lerNumero(val('area' + u)); }, 0);
     var somaAmp = lerNumero(val('areaReg')) + lerNumero(val('areaAmp'));
     if (misto) $('areaTotal').value = somaUsos ? num(somaUsos) : '';
     else if (combinada) $('areaTotal').value = somaAmp ? num(somaAmp) : '';
-    var difere = misto && combinada && somaUsos && somaAmp && Math.abs(somaUsos - somaAmp) > 0.005;
-    $('dicaTotal').textContent = difere ? 'Atenção: regularizar + ampliar soma ' + num(somaAmp) + ' m², diferente da soma dos usos.' : misto ? 'Soma das áreas de cada uso.' : combinada ? 'Área a regularizar + área a ampliar.' : '';
-    $('dicaTotal').style.color = difere ? 'var(--erro)' : '';
+    $('dicaTotal').textContent = porUso ? 'Soma das áreas a regularizar e a ampliar de cada uso.' : misto ? 'Soma das áreas de cada uso.' : combinada ? 'Área a regularizar + área a ampliar.' : '';
     $('cEscopo').hidden = !tem('tc');
     $('sD1').hidden = !tem('d1');
     $('gLote').hidden = !tem('d1');
@@ -914,7 +992,7 @@
     ajustarPrevia();
 
     $('stTipo').textContent = ts.length ? ts.map(function (t) { return t.nome; }).join(' + ') : 'Escolha o tipo de solicitação';
-    $('stDocs').textContent = ordenados.length ? $('rolagem').querySelectorAll('.pagina').length + ($('rolagem').querySelectorAll('.pagina').length > 1 ? ' páginas · ' : ' página · ') + ordenados.map(function (k) { return k === 'tc' ? ({ pe: 'TC-1', p: 'TC-2', e: 'TC-3' })[escopo] : DOCS[k].cod; }).join(', ') : 'Nenhum documento selecionado';
+    $('stDocs').textContent = ordenados.length ? $('rolagem').querySelectorAll('.pagina').length + ($('rolagem').querySelectorAll('.pagina').length > 1 ? ' documentos · ' : ' documento · ') + ordenados.map(function (k) { return k === 'tc' ? ({ pe: 'TC-1', p: 'TC-2', e: 'TC-3' })[escopo] : DOCS[k].cod; }).join(', ') : 'Nenhum documento selecionado';
   }
 
   // ---------- Validação e impressão ----------
@@ -942,7 +1020,13 @@
       exigir('cObraRua', val('obraRua'), 'logradouro da obra');
       exigir('cObraNum', val('obraNum'), 'nº da obra (ou s/n)');
       exigir('cObraBairro', val('obraBairro'), 'bairro da obra');
-      exigir('cObraMat', val('obraMat'), 'matrícula');
+      if (ehUnificacao()) {
+        var faltaMat = false;
+        linhasMat().forEach(function (l) {
+          ['.matN', '.matA'].forEach(function (c) { var i = l.querySelector(c); if (!i.value.trim()) { i.closest('.campo').classList.add('invalido'); faltaMat = true; } });
+        });
+        if (faltaMat) faltam.push('nº e área de cada matrícula');
+      } else exigir('cObraMat', val('obraMat'), 'matrícula');
     }
     var precisaRt = docs.some(function (k) { return k !== 'req' && k !== 'chk'; });
     if (precisaRt) {
@@ -958,20 +1042,18 @@
     if (tem('d1')) {
       exigir('cUso', marcados('uso').length > 0, 'uso da edificação');
       exigir('cAreaTerreno', val('areaTerreno'), 'área do terreno');
-      if (ehCombinada()) {
+      if (ehCombinada() && !ehMisto()) {
         exigir('cAreaReg', val('areaReg'), 'área a regularizar');
         exigir('cAreaAmp', val('areaAmp'), 'área a ampliar');
-      } else exigir('cAreaTotal', val('areaTotal'), 'área total construída');
+      } else if (!ehMisto()) exigir('cAreaTotal', val('areaTotal'), 'área total construída');
       if (ehMisto()) {
         marcados('uso').forEach(function (u) {
           var n = NOME_USO[u].toLowerCase();
-          exigir('cArea' + u, val('area' + u), 'área ' + n);
+          if (ehCombinada()) exigir('cAreaReg' + u, val('areaReg' + u) || val('areaAmp' + u), 'área a regularizar/ampliar ' + n);
+          else exigir('cArea' + u, val('area' + u), 'área ' + n);
           exigir('cTipo' + u, val('tipo' + u), 'tipo de projeto ' + n);
           if (!$('padrao' + u).disabled) exigir('cPadrao' + u, val('padrao' + u), 'padrão ' + n);
         });
-        if (ehCombinada() && Math.abs(lerNumero(val('areaReg')) + lerNumero(val('areaAmp')) - lerNumero(val('areaTotal'))) > 0.005) {
-          $('cAreaTotal').classList.add('invalido'); faltam.push('áreas a regularizar + ampliar somando a área total');
-        }
       } else {
         exigir('cTipoProj', val('tipoProj'), 'tipo de projeto');
         if (!$('padrao').disabled) exigir('cPadrao', val('padrao'), 'padrão de acabamento');
@@ -990,9 +1072,6 @@
     if (faltam.length) { avisar('Informe: ' + faltam.join(', ') + '.'); return; }
     atualizar();
     previa.open = true;
-    // Cada documento precisa caber numa folha A4 (o miolo não pode invadir o rodapé)
-    var cheias = Array.prototype.filter.call(document.querySelectorAll('.previa .pagina'), excedeFolha);
-    if (cheias.length) { avisar('Algum documento passou de uma página. Encurte os textos mais longos (endereços, descrição).'); return; }
     avisar('');
     var titulo = document.title;
     document.title = 'Protocolo - ' + (val('propNome') || tiposSelecionados()[0].nome);
@@ -1011,8 +1090,12 @@
     $('propCidade').value = 'Seberi/RS';
     avisar('');
     Array.prototype.forEach.call(document.querySelectorAll('.campo.invalido'), function (c) { c.classList.remove('invalido'); });
+    reiniciarMatriculas();
     montarListaDocs(); atualizar();
   });
+
+  $('btnAddMat').addEventListener('click', function () { addMatricula(); atualizar(); linhasMat().pop().querySelector('.matN').focus(); });
+  reiniciarMatriculas();
 
   // Ao trocar os tipos, refaz a lista de documentos (o atualizar vem do ouvinte geral da coluna)
   $('tipos').addEventListener('change', montarListaDocs);
